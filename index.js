@@ -18,31 +18,31 @@ const defaultArgs = {
 };
 
 const argDescriptions = {
-	themename: 'The theme name.', 
-	themetextdomain: 'The theme text domain.', 
-	themeversion: 'The theme version.',
-	themeuri: 'The theme URI.', 
+	themename: 'The theme name', 
+	themetextdomain: 'The theme text domain', 
+	themeversion: 'The theme version',
+	themeuri: 'The theme URI', 
 	themedescription: 'The theme description', 
-	themeauthor: 'The theme author.', 
-	themeauthoruri: 'The theme author URI.', 
-	themelicense: 'The theme license as a valid SPDX expression.', 
-	themetags: 'A comma separated list of valid WordPress theme repository tags.', 
-	wpversionrequired: 'The version of WordPress that this theme requires.', 
-	wpversiontested: 'The version of WordPress that this theme has been tested up to.', 
+	themeauthor: 'The theme author', 
+	themeauthoruri: 'The theme author URI', 
+	themelicense: 'The theme license as a valid SPDX expression', 
+	themetags: 'A comma separated list of valid WordPress theme repository tags', 
+	wpversionrequired: 'The version of WordPress that this theme requires', 
+	wpversiontested: 'The version of WordPress that this theme has been tested up to', 
 };
 
 const argAliases = {
 	themename: 'n', 
-	themetextdomain: 'x',
-	themeversion: 'w', 
+	themetextdomain: 't',
+	themeversion: 'x', 
 	themeuri: 'u', 
 	themedescription: 'd', 
 	themeauthor: 'a', 
-	themeauthoruri: 'i', 
+	themeauthoruri: 'U', 
 	themelicense: 'l',  
-	themetags: 't', 
-	wpversionrequired: 'r', 
-	wpversiontested: 'e', 
+	themetags: 'T', 
+	wpversionrequired: 'w', 
+	wpversiontested: 'W', 
 };
 
 const requiredArgs = [
