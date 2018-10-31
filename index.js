@@ -183,7 +183,7 @@ function writePackage(args = null) {
 			themePkg.name = themeDir;
 			themePkg.version = args.themeversion;
 			themePkg.description = args.themedescription;
-			themePkg.keywords = args.themetags ? args.themetags.split(',') : [];
+			themePkg.keywords = args.themetags ? args.themetags.split(',').map(function(tag) { return tag.trim(); }) : [];
 			themePkg.author = {
 				name: args.themeauthor, 
 				email: args.themeauthoremail, 
