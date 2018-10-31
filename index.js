@@ -1,7 +1,9 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --harmony
 'use-strict';
 
 const program = require('commander');
+const co = require('co');
+const prompt = require('co-prompt');
 const pkg = require('./package.json');
 var cmd = pkg.name;
 if (pkg.bin) {
@@ -23,6 +25,20 @@ const defaultArgs = {
 	themetags: 'accessibility-ready, translation-ready', 
 	wpversionrequired: '4.9.8', 
 	wpversiontested: '4.9.8', 
+};
+
+const argTitles = {
+	themename: 'Theme Name', 
+	themetextdomain: 'Text Domain', 
+	themeversion: 'Version',
+	themeuri: 'Theme URI', 
+	themedescription: 'Description', 
+	themeauthor: 'Author', 
+	themeauthoruri: 'Author URI', 
+	themelicense: 'License', 
+	themetags: 'Tags', 
+	wpversionrequired: 'WP Version Required', 
+	wpversiontested: 'WP Version Tested', 
 };
 
 const argDescriptions = {
@@ -72,3 +88,18 @@ for (var key in defaultArgs) {
 }
 
 program.parse(process.argv);
+
+co(function *() {
+	var values = defaultArgs;
+	for (var key in defaultArgs) {
+		const value = yield prompt(argTitles[key] + ': (' + defaultArgs[key] + ') ');
+		if (value) {
+			values[key] = value;
+		}
+	}
+	return values;
+}).then(function (values) {
+	console.log(values);
+}, function (error) {
+	console.error(error);
+});
