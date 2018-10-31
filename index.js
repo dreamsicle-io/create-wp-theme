@@ -8,6 +8,7 @@ const co = require('co');
 const prompt = require('co-prompt');
 const nodegit = require('nodegit');
 const del = require('del');
+const ncp = require('ncp').ncp;
 const pkg = require('./package.json');
 
 const defaultArgs = {
@@ -152,6 +153,18 @@ function getCommandName() {
 	return cmd;
 }
 
+function putPackage() {
+	ncp(pkgPath, themePath, function(error) {
+		if (error) {
+			console.error(error);
+			process.exit();
+		} else {
+			console.info('Theme created: ' + themePath);
+			process.exit();
+		}
+	});
+}
+
 function writePackage(args = null) {
 	const themePkgPath = path.join(pkgPath, 'package.json');
 	fs.readFile(themePkgPath, function(error, data) {
@@ -188,7 +201,7 @@ function writePackage(args = null) {
 					process.exit();
 				} else {
 					console.info('package.json written: ' + themePkgPath);
-					process.exit();
+					putPackage();
 				}
 			});
 		}
