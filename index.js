@@ -1,9 +1,12 @@
 #!/usr/bin/env node --harmony
 'use-strict';
 
+const path = require('path');
 const program = require('commander');
 const co = require('co');
 const prompt = require('co-prompt');
+const nodegit = require('nodegit');
+const del = require('del');
 const pkg = require('./package.json');
 
 const defaultArgs = {
@@ -75,7 +78,7 @@ const argAliases = {
 	themedescription: 'd', 
 	themeauthor: 'A', 
 	themeauthoruri: 'u', 
-	themelicense: 'L',  
+	themelicense: 'L', 
 	themetags: 't', 
 	wpversionrequired: 'W', 
 	wpversiontested: 'w', 
@@ -85,21 +88,6 @@ const requiredArgs = [
 	'themename', 
 	'themetextdomain', 
 ];
-
-function getCommandName() {
-	var cmd = pkg.name;
-	if (pkg.bin) {
-		for (var key in pkg.bin) {
-			cmd = key;
-		    break;
-		}
-	}
-	return cmd;
-}
-
-function writePackage(args = null) {
-	console.log(args);
-}
 
 program.name(getCommandName());
 program.version(pkg.version);
@@ -117,19 +105,61 @@ for (var key in defaultArgs) {
 
 program.parse(process.argv);
 
+const repoPath = 'https://github.com/dreamsicle-io/wp-theme-assets';
+const tmpPath = path.join(__dirname, 'tmp');
+const themePath = path.join(process.cwd(), program.args[0]);
+const cloneOptions = {
+	fetchOpts: {
+		callbacks: {
+			// This is a required callback for OS X machines.  There is a known issue
+			// with libgit2 being able to verify certificates from GitHub.
+			certificateCheck: function() { return 1; }
+		}
+	}
+};
+
+function getCommandName() {
+	var cmd = pkg.name;
+	if (pkg.bin) {
+		for (var key in pkg.bin) {
+			cmd = key;
+			break;
+		}
+	}
+	return cmd;
+}
+
+function clonePackage(args = null) {
+	del([tmpPath], { force: true })
+		.then(function(paths) {
+			console.info('Repo cleaned: ' + paths.join(', '));
+			nodegit.Clone(repoPath, tmpPath, cloneOptions)
+				.then(function(repo) {
+					console.info('Repo cloned: ' + tmpPath);
+					process.exit();
+				}).catch(function(error) {
+					console.error(error);
+					process.exit();
+				});
+		})
+		.catch(function(error) {
+			console.error(error);
+			process.exit();
+		});
+}
+
 co(function *() {
 	var values = defaultArgs;
 	for (var key in defaultArgs) {
-		const value = yield prompt(argTitles[key] + ': (' + defaultArgs[key] + ') ');
-		if (value) {
-			values[key] = value;
+		const promptValue = yield prompt(argTitles[key] + ': (' + defaultArgs[key] + ') ');
+		if (promptValue || program[key]) {
+			values[key] = promptValue || program[key];
 		}
 	}
 	return values;
 }).then(function(args) {
-	writePackage(args);
-	process.exit();
-}).catch(function(error) {
+	clonePackage(args);
+}, function(error) {
 	console.error(error);
 	process.exit();
 });
