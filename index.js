@@ -160,7 +160,14 @@ function putPackage() {
 			process.exit();
 		} else {
 			console.info('Theme created: ' + themePath);
-			process.exit();
+			del([tmpPath], { force: true })
+				.then(function(paths) {
+					console.info('Repo cleaned: ' + paths.join(', '));
+					process.exit();
+				}).catch(function(error) {
+					console.error(error);
+					process.exit();
+				});
 		}
 	});
 }
