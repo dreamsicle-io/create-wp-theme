@@ -2,6 +2,7 @@
 'use-strict';
 
 const path = require('path');
+const fs = require('fs');
 const program = require('commander');
 const co = require('co');
 const prompt = require('co-prompt');
@@ -15,8 +16,12 @@ const defaultArgs = {
 	themeversion: '0.0.1', 
 	themetemplate: '', 
 	themeuri: 'https://github.com/dreamsicle-io/create-wp-theme', 
+	themebugsuri: 'https://github.com/dreamsicle-io/create-wp-theme/issues', 
+	themerepouri: 'https://github.com/dreamsicle-io/create-wp-theme.git', 
+	themerepotype: 'git', 
 	themedescription: 'This theme was generated using create-wp-theme.', 
 	themeauthor: 'Dreamsicle', 
+	themeauthoremail: 'hello@dreamsicle.io', 
 	themeauthoruri: 'https://www.dreamsicle.io', 
 	themelicense: 'GPL-3.0', 
 	themetags: 'accessibility-ready, translation-ready', 
@@ -30,8 +35,12 @@ const argTypes = {
 	themeversion: 'version',
 	themetemplate: 'theme', 
 	themeuri: 'uri', 
+	themebugsuri: 'uri', 
+	themerepouri: 'uri', 
+	themerepotype: 'type', 
 	themedescription: 'description', 
 	themeauthor: 'name', 
+	themeauthoremail: 'email', 
 	themeauthoruri: 'uri', 
 	themelicense: 'spdx', 
 	themetags: 'tags', 
@@ -45,8 +54,12 @@ const argTitles = {
 	themeversion: 'Version',
 	themetemplate: 'Template', 
 	themeuri: 'Theme URI', 
+	themebugsuri: 'Theme Bugs URI', 
+	themerepouri: 'Theme Repository URI', 
+	themerepotype: 'Theme Repository Type', 
 	themedescription: 'Description', 
 	themeauthor: 'Author', 
+	themeauthoremail: 'Author Email', 
 	themeauthoruri: 'Author URI', 
 	themelicense: 'License', 
 	themetags: 'Tags', 
@@ -60,8 +73,12 @@ const argDescriptions = {
 	themeversion: 'The theme version',
 	themetemplate: 'The parent theme if this is a child theme', 
 	themeuri: 'The theme URI', 
+	themebugsuri: 'The theme bugs URI', 
+	themerepouri: 'The theme repository URI', 
+	themerepotype: 'The theme repository type', 
 	themedescription: 'The theme description', 
 	themeauthor: 'The theme author', 
+	themeauthoremail: 'The theme author email', 
 	themeauthoruri: 'The theme author URI', 
 	themelicense: 'The theme license as a valid SPDX expression', 
 	themetags: 'A CSV of WordPress theme tags', 
@@ -75,8 +92,12 @@ const argAliases = {
 	themeversion: 'X', 
 	themetemplate: 'T', 
 	themeuri: 'U', 
+	themebugsuri: 'B', 
+	themerepouri: 'R', 
+	themerepotype: 'r', 
 	themedescription: 'd', 
 	themeauthor: 'A', 
+	themeauthoremail: 'E', 
 	themeauthoruri: 'u', 
 	themelicense: 'L', 
 	themetags: 't', 
@@ -105,9 +126,11 @@ for (var key in defaultArgs) {
 
 program.parse(process.argv);
 
-const repoPath = 'https://github.com/dreamsicle-io/wp-theme-assets';
+const repoPath = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
 const tmpPath = path.join(__dirname, 'tmp');
-const themePath = path.join(process.cwd(), program.args[0]);
+const pkgPath = path.join(tmpPath, 'package');
+const themeDir = program.args[0];
+const themePath = path.join(process.cwd(), themeDir);
 const cloneOptions = {
 	fetchOpts: {
 		callbacks: {
@@ -129,14 +152,57 @@ function getCommandName() {
 	return cmd;
 }
 
+function writePackage(args = null) {
+	const themePkgPath = path.join(pkgPath, 'package.json');
+	fs.readFile(themePkgPath, function(error, data) {
+		if (error) {
+			console.error(error);
+			process.exit();
+		} else {
+			themePkg = JSON.parse(data);
+			themePkg.name = themeDir;
+			themePkg.version = args.themeversion;
+			themePkg.description = args.themedescription;
+			themePkg.keywords = args.themetags ? args.themetags.split(',') : [];
+			themePkg.author = {
+				name: args.themeauthor, 
+				email: args.themeauthoremail, 
+				url: args.themeauthoruri, 
+			};
+			themePkg.license = args.themelicense;
+			themePkg.wordpress = {
+				versionRequired: args.wpversionrequired,
+				versionTested: args.wpversiontested, 
+			};
+			themePkg.bugs = {
+				url: args.themebugsuri, 
+			};
+			themePkg.homepage = args.themeuri;
+			themePkg.repository = {
+				type: args.themerepotype, 
+				url: args.themerepouri, 
+			};
+			fs.writeFile(themePkgPath, JSON.stringify(themePkg, null, '\t'), function(error) {
+				if (error) {
+					console.error(error);
+					process.exit();
+				} else {
+					console.info('package.json written: ' + themePkgPath);
+					process.exit();
+				}
+			});
+		}
+	});
+}
+
 function clonePackage(args = null) {
 	del([tmpPath], { force: true })
 		.then(function(paths) {
 			console.info('Repo cleaned: ' + paths.join(', '));
 			nodegit.Clone(repoPath, tmpPath, cloneOptions)
 				.then(function(repo) {
-					console.info('Repo cloned: ' + tmpPath);
-					process.exit();
+					console.info('Repo cloned: ' + repoPath + ' --> ' + tmpPath);
+					writePackage(args);
 				}).catch(function(error) {
 					console.error(error);
 					process.exit();
