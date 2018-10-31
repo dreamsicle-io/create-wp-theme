@@ -5,20 +5,14 @@ const program = require('commander');
 const co = require('co');
 const prompt = require('co-prompt');
 const pkg = require('./package.json');
-var cmd = pkg.name;
-if (pkg.bin) {
-	for (var key in pkg.bin) {
-		cmd = key;
-	    break;
-	}
-}
 
 const defaultArgs = {
 	themename: 'WP Theme', 
 	themetextdomain: 'wp-theme', 
 	themeversion: '0.0.1', 
+	themetemplate: '', 
 	themeuri: 'https://github.com/dreamsicle-io/create-wp-theme', 
-	themedescription: 'This theme was generated using "create-wp-theme".', 
+	themedescription: 'This theme was generated using create-wp-theme.', 
 	themeauthor: 'Dreamsicle', 
 	themeauthoruri: 'https://www.dreamsicle.io', 
 	themelicense: 'GPL-3.0', 
@@ -27,10 +21,26 @@ const defaultArgs = {
 	wpversiontested: '4.9.8', 
 };
 
+const argTypes = {
+	themename: 'name', 
+	themetextdomain: 'textdomain', 
+	themeversion: 'version',
+	themetemplate: 'theme', 
+	themeuri: 'uri', 
+	themedescription: 'description', 
+	themeauthor: 'name', 
+	themeauthoruri: 'uri', 
+	themelicense: 'spdx', 
+	themetags: 'tags', 
+	wpversionrequired: 'version', 
+	wpversiontested: 'version', 
+};
+
 const argTitles = {
 	themename: 'Theme Name', 
 	themetextdomain: 'Text Domain', 
 	themeversion: 'Version',
+	themetemplate: 'Template', 
 	themeuri: 'Theme URI', 
 	themedescription: 'Description', 
 	themeauthor: 'Author', 
@@ -45,22 +55,24 @@ const argDescriptions = {
 	themename: 'The theme name', 
 	themetextdomain: 'The theme text domain', 
 	themeversion: 'The theme version',
+	themetemplate: 'The parent theme if this is a child theme', 
 	themeuri: 'The theme URI', 
 	themedescription: 'The theme description', 
 	themeauthor: 'The theme author', 
 	themeauthoruri: 'The theme author URI', 
 	themelicense: 'The theme license as a valid SPDX expression', 
-	themetags: 'A comma separated list of valid WordPress theme repository tags', 
-	wpversionrequired: 'The version of WordPress that this theme requires', 
-	wpversiontested: 'The version of WordPress that this theme has been tested up to', 
+	themetags: 'A CSV of WordPress theme tags', 
+	wpversionrequired: 'The version of WordPress the theme requires', 
+	wpversiontested: 'The version of WordPress the theme has been tested up to', 
 };
 
 const argAliases = {
 	themename: 'N', 
-	themetextdomain: 'T',
+	themetextdomain: 'D',
 	themeversion: 'X', 
+	themetemplate: 'T', 
 	themeuri: 'U', 
-	themedescription: 'D', 
+	themedescription: 'd', 
 	themeauthor: 'A', 
 	themeauthoruri: 'u', 
 	themelicense: 'L',  
@@ -74,7 +86,22 @@ const requiredArgs = [
 	'themetextdomain', 
 ];
 
-program.name(cmd);
+function getCommandName() {
+	var cmd = pkg.name;
+	if (pkg.bin) {
+		for (var key in pkg.bin) {
+			cmd = key;
+		    break;
+		}
+	}
+	return cmd;
+}
+
+function writePackage(args = null) {
+	console.log(args);
+}
+
+program.name(getCommandName());
 program.version(pkg.version);
 program.arguments('<file>');
 
@@ -83,8 +110,9 @@ for (var key in defaultArgs) {
 	const alias = argAliases[key];
 	const description = argDescriptions[key];
 	const isRequired = (requiredArgs.indexOf(key) !== -1);
-	const variable = isRequired ? '<' + key + '>' : '[' + key + ']';
-	program.option('-' + alias + ', --' + key + ' ' + variable, description + ' [' + defaultValue + ']', defaultValue);
+	const argType = argTypes[key];
+	const type = isRequired ? '<' + argType + '>' : '[' + argType + ']';
+	program.option('-' + alias + ', --' + key + ' ' + type, description, defaultValue);
 }
 
 program.parse(process.argv);
@@ -98,8 +126,8 @@ co(function *() {
 		}
 	}
 	return values;
-}).then(function(values) {
-	console.log(values);
+}).then(function(args) {
+	writePackage(args);
 	process.exit();
 }).catch(function(error) {
 	console.error(error);
