@@ -13,6 +13,8 @@ const defaultArgs = {
 	themetextdomain: 'wp-theme', 
 	themetags: 'accessibility-ready, translation-ready', 
 	themeversion: '0.0.1', 
+	wpversionrequired: '4.9.8', 
+	wpversiontested: '4.9.8', 
 };
 
 const argDescriptions = {
@@ -25,6 +27,8 @@ const argDescriptions = {
 	themeauthoruri: 'The theme author URI.', 
 	themelicense: 'The theme license as a valid SPDX expression.', 
 	themetags: 'A comma separated list of valid WordPress theme repository tags.', 
+	wpversionrequired: 'The version of WordPress that this theme requires.', 
+	wpversiontested: 'The version of WordPress that this theme has been tested up to.', 
 };
 
 const argAliases = {
@@ -37,6 +41,8 @@ const argAliases = {
 	themeauthoruri: 'i', 
 	themelicense: 'l',  
 	themetags: 't', 
+	wpversionrequired: 'r', 
+	wpversiontested: 'e', 
 };
 
 const requiredArgs = [
