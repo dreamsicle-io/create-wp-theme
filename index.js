@@ -1,8 +1,15 @@
 #!/usr/bin/env node
 'use-strict';
 
-const pkg = require('./package.json');
 const program = require('commander');
+const pkg = require('./package.json');
+var cmd = pkg.name;
+if (pkg.bin) {
+	for (var key in pkg.bin) {
+		cmd = key;
+	    break;
+	}
+}
 
 const defaultArgs = {
 	themename: 'WP Theme', 
@@ -50,14 +57,6 @@ const requiredArgs = [
 	'themename', 
 	'themetextdomain', 
 ];
-
-var cmd = pkg.name;
-if (pkg.bin) {
-	for (var key in pkg.bin) {
-		cmd = key;
-	    break;
-	}
-}
 
 program.name(cmd);
 program.version(pkg.version);
