@@ -6,42 +6,42 @@ const program = require('commander');
 const defaultArgs = {
 	themename: 'WP Theme', 
 	themeuri: 'https://github.com/dreamsicle-io/create-wp-theme', 
-	themeversion: '0.0.1', 
 	themedescription: 'This theme was generated using "create-wp-theme".', 
-	author: 'Dreamsicle', 
-	authoruri: 'https://www.dreamsicle.io', 
-	license: 'GPL-3.0', 
-	textdomain: 'wp-theme', 
-	tags: 'accessibility-ready, translation-ready', 
+	themeauthor: 'Dreamsicle', 
+	themeauthoruri: 'https://www.dreamsicle.io', 
+	themelicense: 'GPL-3.0', 
+	themetextdomain: 'wp-theme', 
+	themetags: 'accessibility-ready, translation-ready', 
+	themeversion: '0.0.1', 
 };
 
 const argDescriptions = {
 	themename: 'The theme name.', 
+	themetextdomain: 'The theme text domain.', 
+	themeversion: 'The theme version.',
 	themeuri: 'The theme URI.', 
-	themeversion: 'The theme version.', 
 	themedescription: 'The theme description', 
-	author: 'The theme author.', 
-	authoruri: 'The theme author URI.', 
-	license: 'The theme license as a valid SPDX expression.', 
-	textdomain: 'The theme text domain.', 
-	tags: 'A comma separated list of valid WordPress theme repository tags.', 
+	themeauthor: 'The theme author.', 
+	themeauthoruri: 'The theme author URI.', 
+	themelicense: 'The theme license as a valid SPDX expression.', 
+	themetags: 'A comma separated list of valid WordPress theme repository tags.', 
 };
 
 const argAliases = {
-	themename: 'tn', 
-	themeuri: 'tu', 
-	themeversion: 'tv', 
-	themedescription: 'td', 
-	author: 'a', 
-	authoruri: 'au', 
-	license: 'l', 
-	textdomain: 'td', 
-	tags: 't', 
+	themename: 'n', 
+	themetextdomain: 'x',
+	themeversion: 'w', 
+	themeuri: 'u', 
+	themedescription: 'd', 
+	themeauthor: 'a', 
+	themeauthoruri: 'i', 
+	themelicense: 'l',  
+	themetags: 't', 
 };
 
 const requiredArgs = [
 	'themename', 
-	'textdomain', 
+	'themetextdomain', 
 ];
 
 program.arguments('<file>');
@@ -51,7 +51,7 @@ for (var key in defaultArgs) {
 	const alias = argAliases[key];
 	const description = argDescriptions[key];
 	const isRequired = (requiredArgs.indexOf(key) !== -1);
-	program.option('-' + alias + ', --' + key + ' <' + key + '>', description);
+	program.option('-' + alias + ', --' + key + ' <' + key + '>', description + ' [' + defaultValue + ']');
 }
 
 program.parse(process.argv);
