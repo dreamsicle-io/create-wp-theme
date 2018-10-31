@@ -98,10 +98,10 @@ co(function *() {
 		}
 	}
 	return values;
-}).then(function (values) {
+}).then(function(values) {
 	console.log(values);
 	process.exit();
-}, function (error) {
+}).catch(function(error) {
 	console.error(error);
 	process.exit();
 });
