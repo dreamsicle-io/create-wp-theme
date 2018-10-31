@@ -13,14 +13,14 @@ if (pkg.bin) {
 
 const defaultArgs = {
 	themename: 'WP Theme', 
+	themetextdomain: 'wp-theme', 
+	themeversion: '0.0.1', 
 	themeuri: 'https://github.com/dreamsicle-io/create-wp-theme', 
 	themedescription: 'This theme was generated using "create-wp-theme".', 
 	themeauthor: 'Dreamsicle', 
 	themeauthoruri: 'https://www.dreamsicle.io', 
 	themelicense: 'GPL-3.0', 
-	themetextdomain: 'wp-theme', 
 	themetags: 'accessibility-ready, translation-ready', 
-	themeversion: '0.0.1', 
 	wpversionrequired: '4.9.8', 
 	wpversiontested: '4.9.8', 
 };
@@ -40,17 +40,17 @@ const argDescriptions = {
 };
 
 const argAliases = {
-	themename: 'n', 
-	themetextdomain: 't',
-	themeversion: 'x', 
-	themeuri: 'u', 
-	themedescription: 'd', 
-	themeauthor: 'a', 
-	themeauthoruri: 'U', 
-	themelicense: 'l',  
-	themetags: 'T', 
-	wpversionrequired: 'w', 
-	wpversiontested: 'W', 
+	themename: 'N', 
+	themetextdomain: 'T',
+	themeversion: 'X', 
+	themeuri: 'U', 
+	themedescription: 'D', 
+	themeauthor: 'A', 
+	themeauthoruri: 'u', 
+	themelicense: 'L',  
+	themetags: 't', 
+	wpversionrequired: 'W', 
+	wpversiontested: 'w', 
 };
 
 const requiredArgs = [
@@ -67,20 +67,8 @@ for (var key in defaultArgs) {
 	const alias = argAliases[key];
 	const description = argDescriptions[key];
 	const isRequired = (requiredArgs.indexOf(key) !== -1);
-	if (isRequired) {
-		program.option('-' + alias + ', --' + key + ' <' + key + '>', description + ' [' + defaultValue + ']');
-	} else {
-		program.option('-' + alias + ', --' + key + ' [' + key + ']', description + ' [' + defaultValue + ']');
-	}
+	const variable = isRequired ? '<' + key + '>' : '[' + key + ']';
+	program.option('-' + alias + ', --' + key + ' ' + variable, description + ' [' + defaultValue + ']', defaultValue);
 }
 
 program.parse(process.argv);
-
-const args = defaultArgs;
-for (var key in defaultArgs) {
-	if (program[key]) {
-		args[key] = program[key];
-	}
-}
-
-console.log(args);
