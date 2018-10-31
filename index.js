@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use-strict';
 
+const pkg = require('./package.json');
 const program = require('commander');
 
 const defaultArgs = {
@@ -50,6 +51,16 @@ const requiredArgs = [
 	'themetextdomain', 
 ];
 
+var cmd = pkg.name;
+if (pkg.bin) {
+	for (var key in pkg.bin) {
+		cmd = key;
+	    break;
+	}
+}
+
+program.name(cmd);
+program.version(pkg.version);
 program.arguments('<file>');
 
 for (var key in defaultArgs) {
@@ -57,7 +68,11 @@ for (var key in defaultArgs) {
 	const alias = argAliases[key];
 	const description = argDescriptions[key];
 	const isRequired = (requiredArgs.indexOf(key) !== -1);
-	program.option('-' + alias + ', --' + key + ' <' + key + '>', description + ' [' + defaultValue + ']');
+	if (isRequired) {
+		program.option('-' + alias + ', --' + key + ' <' + key + '>', description + ' [' + defaultValue + ']');
+	} else {
+		program.option('-' + alias + ', --' + key + ' [' + key + ']', description + ' [' + defaultValue + ']');
+	}
 }
 
 program.parse(process.argv);
