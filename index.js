@@ -9,6 +9,7 @@ const prompt = require('co-prompt');
 const nodegit = require('nodegit');
 const del = require('del');
 const ncp = require('ncp').ncp;
+const fetch = require('node-fetch');
 const pkg = require('./package.json');
 
 const defaultArgs = {
@@ -153,7 +154,7 @@ function getCommandName() {
 	return cmd;
 }
 
-function putPackage() {
+function putPackage(args = null) {
 	ncp(pkgPath, themePath, function(error) {
 		if (error) {
 			console.error(error);
@@ -170,6 +171,36 @@ function putPackage() {
 				});
 		}
 	});
+}
+
+function writeLicense(body = '', args = null) {
+	const themeLicPath = path.join(tmpPath, 'LICENSE');
+	fs.writeFile(themeLicPath, body, function(error) {
+		if (error) {
+			console.error(error);
+			process.exit();
+		} else {
+			console.info('License written: ' + themeLicPath);
+			putPackage(args);
+		}
+	});
+}
+
+function fetchLicense(args = null) {
+	fetch('https://api.github.com/licenses/' + encodeURIComponent(args.themelicense.toLowerCase()))
+		.then(function(response) {
+			if (response.status === 200) {
+				return response.json();
+			} else {
+				throw new Error('There was a problem fetching the license from GitHub (' + response.status + ').');
+			}
+		}).then(function(data) {
+			console.info('License fetched: ' + data.name);
+			writeLicense(data.body, args);
+		}).catch(function(error) {
+			console.error(error);
+			process.exit();
+		})
 }
 
 function writePackage(args = null) {
@@ -208,7 +239,7 @@ function writePackage(args = null) {
 					process.exit();
 				} else {
 					console.info('package.json written: ' + themePkgPath);
-					putPackage();
+					fetchLicense(args);
 				}
 			});
 		}
@@ -218,7 +249,9 @@ function writePackage(args = null) {
 function clonePackage(args = null) {
 	del([tmpPath], { force: true })
 		.then(function(paths) {
-			console.info('Repo cleaned: ' + paths.join(', '));
+			if (paths.length > 0) {
+				console.info('Repo cleaned: ' + paths.join(', '));
+			}
 			nodegit.Clone(repoPath, tmpPath, cloneOptions)
 				.then(function(repo) {
 					console.info('Repo cloned: ' + repoPath + ' --> ' + tmpPath);
@@ -244,6 +277,7 @@ co(function *() {
 	}
 	return values;
 }).then(function(args) {
+	console.info('\nCreating theme: ' + args.themename + ' in /' + themeDir + '\n');
 	clonePackage(args);
 }, function(error) {
 	console.error(error);
