@@ -130,9 +130,12 @@ program.parse(process.argv);
 
 const repoPath = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
 const tmpPath = path.join(__dirname, 'tmp');
-const pkgPath = path.join(tmpPath, 'package');
-const themeDir = program.args[0];
-const themePath = path.join(process.cwd(), themeDir);
+const tmpThemePath = path.join(tmpPath, 'package');
+const tmpThemePkgPath = path.join(tmpThemePath, 'package.json');
+const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
+const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
+const themeDirName = program.args[0];
+const themePath = path.join(process.cwd(), themeDirName);
 const cloneOptions = {
 	fetchOpts: {
 		callbacks: {
@@ -155,7 +158,7 @@ function getCommandName() {
 }
 
 function putPackage(args = null) {
-	ncp(pkgPath, themePath, function(error) {
+	ncp(tmpThemePath, themePath, function(error) {
 		if (error) {
 			console.error(error);
 			process.exit();
@@ -173,20 +176,7 @@ function putPackage(args = null) {
 	});
 }
 
-function writeLicense(body = '', args = null) {
-	const themeLicPath = path.join(tmpPath, 'LICENSE');
-	fs.writeFile(themeLicPath, body, function(error) {
-		if (error) {
-			console.error(error);
-			process.exit();
-		} else {
-			console.info('License written: ' + themeLicPath);
-			putPackage(args);
-		}
-	});
-}
-
-function fetchLicense(args = null) {
+function writeLicense(args = null) {
 	fetch('https://api.github.com/licenses/' + encodeURIComponent(args.themelicense.toLowerCase()))
 		.then(function(response) {
 			if (response.status === 200) {
@@ -196,7 +186,15 @@ function fetchLicense(args = null) {
 			}
 		}).then(function(data) {
 			console.info('License fetched: ' + data.name);
-			writeLicense(data.body, args);
+			fs.writeFile(tmpThemeLicPath, data.body, function(error) {
+				if (error) {
+					console.error(error);
+					process.exit();
+				} else {
+					console.info('License written: ' + tmpThemeLicPath);
+					putPackage(args);
+				}
+			});
 		}).catch(function(error) {
 			console.error(error);
 			process.exit();
@@ -204,46 +202,54 @@ function fetchLicense(args = null) {
 }
 
 function writePackage(args = null) {
-	const themePkgPath = path.join(pkgPath, 'package.json');
-	fs.readFile(themePkgPath, function(error, data) {
-		if (error) {
-			console.error(error);
-			process.exit();
-		} else {
-			themePkg = JSON.parse(data);
-			themePkg.name = themeDir;
-			themePkg.version = args.themeversion;
-			themePkg.description = args.themedescription;
-			themePkg.keywords = args.themetags ? args.themetags.split(',').map(function(tag) { return tag.trim(); }) : [];
-			themePkg.author = {
-				name: args.themeauthor, 
-				email: args.themeauthoremail, 
-				url: args.themeauthoruri, 
-			};
-			themePkg.license = args.themelicense;
-			themePkg.wordpress = {
-				versionRequired: args.wpversionrequired,
-				versionTested: args.wpversiontested, 
-			};
-			themePkg.bugs = {
-				url: args.themebugsuri, 
-			};
-			themePkg.homepage = args.themeuri;
-			themePkg.repository = {
-				type: args.themerepotype, 
-				url: args.themerepouri, 
-			};
-			fs.writeFile(themePkgPath, JSON.stringify(themePkg, null, '\t'), function(error) {
+	del([tmpThemePkgLockPath], { force: true })
+		.then(function(paths) {
+			if (paths.length > 0) {
+				console.info('package-lock.json cleaned: ' + paths.join(', '));
+			}
+			fs.readFile(tmpThemePkgPath, function(error, data) {
 				if (error) {
 					console.error(error);
 					process.exit();
 				} else {
-					console.info('package.json written: ' + themePkgPath);
-					fetchLicense(args);
+					themePkg = JSON.parse(data);
+					themePkg.name = themeDirName;
+					themePkg.version = args.themeversion;
+					themePkg.description = args.themedescription;
+					themePkg.keywords = args.themetags ? args.themetags.split(',').map(function(tag) { return tag.trim(); }) : [];
+					themePkg.author = {
+						name: args.themeauthor, 
+						email: args.themeauthoremail, 
+						url: args.themeauthoruri, 
+					};
+					themePkg.license = args.themelicense;
+					themePkg.wordpress = {
+						versionRequired: args.wpversionrequired,
+						versionTested: args.wpversiontested, 
+					};
+					themePkg.bugs = {
+						url: args.themebugsuri, 
+					};
+					themePkg.homepage = args.themeuri;
+					themePkg.repository = {
+						type: args.themerepotype, 
+						url: args.themerepouri, 
+					};
+					fs.writeFile(tmpThemePkgPath, JSON.stringify(themePkg, null, '\t'), function(error) {
+						if (error) {
+							console.error(error);
+							process.exit();
+						} else {
+							console.info('package.json written: ' + tmpThemePkgPath);
+							writeLicense(args);
+						}
+					});
 				}
 			});
-		}
-	});
+		}).catch(function(error) {
+			console.error(error);
+			process.exit();
+		});
 }
 
 function clonePackage(args = null) {
@@ -270,14 +276,14 @@ function clonePackage(args = null) {
 co(function *() {
 	var values = defaultArgs;
 	for (var key in defaultArgs) {
-		const promptValue = yield prompt(argTitles[key] + ': (' + defaultArgs[key] + ') ');
+		const promptValue = yield prompt(argTitles[key] + ': (' + program[key] + ') ');
 		if (promptValue || program[key]) {
 			values[key] = promptValue || program[key];
 		}
 	}
 	return values;
 }).then(function(args) {
-	console.info('\nCreating theme: ' + args.themename + ' in /' + themeDir + '\n');
+	console.info('\nCreating theme: ' + args.themename + ' in ' + themePath + '\n');
 	clonePackage(args);
 }, function(error) {
 	console.error(error);
