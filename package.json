@@ -1,6 +1,6 @@
 {
   "name": "create-wp-theme",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A command line tool for creating modern, optimized WordPress themes.",
   "main": "index.js",
   "bin": {
