@@ -227,6 +227,7 @@ function writePackage(args = null) {
 				} else {
 					themePkg = JSON.parse(data);
 					themePkg.name = themeDirName;
+					themePkg.themeName = args.themeName;
 					themePkg.version = args.themeVersion;
 					themePkg.description = args.themeDescription;
 					themePkg.keywords = args.themeTags ? args.themeTags.split(',').map(function(tag) { return tag.trim(); }) : [];
