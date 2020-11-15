@@ -23,6 +23,12 @@
   },
   "homepage": "https://github.com/dreamsicle-io/create-wp-theme#readme",
   "dependencies": {
-    "commander": "^2.19.0"
+    "co": "~4.6.0",
+    "co-prompt": "~1.0.0",
+    "commander": "~2.19.0",
+    "del": "~3.0.0",
+    "ncp": "~2.0.0",
+    "node-fetch": "~2.6.1",
+    "nodegit": "~0.27.0"
   }
 }

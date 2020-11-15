@@ -1,2 +1,5 @@
-# Dependencies
+# dependencies
 /node_modules
+
+# tmp
+/tmp
