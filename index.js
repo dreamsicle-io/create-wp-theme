@@ -14,7 +14,6 @@ const pkg = require('./package.json');
 
 const defaultArgs = {
 	themeName: 'WP Theme', 
-	themeTextDomain: 'wp-theme', 
 	themeVersion: '0.0.1', 
 	themeTemplate: '', 
 	themeURI: 'https://github.com/dreamsicle-io/create-wp-theme', 
@@ -33,7 +32,6 @@ const defaultArgs = {
 
 const argTypes = {
 	themeName: 'name', 
-	themeTextDomain: 'textdomain', 
 	themeVersion: 'version',
 	themeTemplate: 'theme', 
 	themeURI: 'uri', 
@@ -52,7 +50,6 @@ const argTypes = {
 
 const argTitles = {
 	themeName: 'Theme Name', 
-	themeTextDomain: 'Text Domain', 
 	themeVersion: 'Version',
 	themeTemplate: 'Template', 
 	themeURI: 'Theme URI', 
@@ -71,7 +68,6 @@ const argTitles = {
 
 const argDescriptions = {
 	themeName: 'The theme name', 
-	themeTextDomain: 'The theme text domain', 
 	themeVersion: 'The theme version',
 	themeTemplate: 'The parent theme if this is a child theme', 
 	themeURI: 'The theme URI', 
@@ -90,7 +86,6 @@ const argDescriptions = {
 
 const argAliases = {
 	themeName: 'N', 
-	themeTextDomain: 'D',
 	themeVersion: 'X', 
 	themeTemplate: 'T', 
 	themeURI: 'U', 
@@ -109,7 +104,6 @@ const argAliases = {
 
 const requiredArgs = [
 	'themeName', 
-	'themeTextDomain', 
 ];
 
 program.name(getCommandName());
