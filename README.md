@@ -69,13 +69,13 @@ Theme created: My Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp
 
 ## Options
 
-The tool offers several options that will serve as defaults for the tool's prompt.These options can be used to customize the default options of the tool.
+The tool offers several options that will serve as defaults for the tool's prompt. These options can be used to customize the default options of the tool allowing the developer to go through the prompts faster.
 
 ```shell 
 create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
 ```
 
-The above would ouput the following prompts.
+**The above would ouput the following prompts:**
 
 ```shell
 The following tool will help you configure your new theme.
@@ -102,13 +102,13 @@ Class Prefix: (WP_Theme)
 
 ## Help 
 
-To get help with the tool and to learn more about usage and the available options, use the `--help` or `-h` flag.
+To get help with the tool and to learn more about usage and the available options, use the `--help` or `-h` flag. This will output all help information available including how to use the command, option flags, option descriptions, and option defaults.
 
 ```shell
 create-wp-theme --help
 ```
 
-This will output all help information available including how to use the command, option flags, option descriptions, and option defaults.
+**The above would ouput the following help information:**
 
 ```shell
 Usage: create-wp-theme [options] <file>
