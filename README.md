@@ -1,8 +1,8 @@
-## Create WP Theme
+# Create WP Theme
 
 Create WP Theme is a node command line tool that will scaffold a new WordPress theme with an opinionated file structure and just the right amount of starter code to get a developer started building a modern WordPress theme. This package contains just the `create-wp-theme` command, all of the actual boilerplate code comes from [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets).
 
-### Usage
+## Usage
 
 Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of a local WordPress instance, and fire the `create-wp-theme` command.
 
@@ -47,11 +47,11 @@ The tool offers several options that will serve as defaults for the tool's promp
 create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
 ```
 
-### The Prompts
+## The Prompts
 
 S
 
-### Help 
+## Help 
 
 To get help with the tool and to learn more about usage and the available options, use the `--help` or `-h` flag.
 
