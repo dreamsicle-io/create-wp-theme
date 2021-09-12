@@ -10,20 +10,26 @@ Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of
 create-wp-theme [options] <file>
 ```
 
-With this in mind, all that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name. This will also serve as regular expression to replace all instances of `wp-theme` in the cloned package files.
+## Getting Started
+
+All that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name. This will also serve as regular expression to replace all instances of `wp-theme` in the cloned package files.
+
+### 1. Run the `create-wp-theme` command
 
 ```shell
 create-wp-theme my-theme
 ```
 
-Once this has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. 
+### 2. Follow the prompts
+
+Once the command has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. 
 
 ```shell
 The following tool will help you configure your new theme.
 For each setting, set a value and hit "Enter" to continue.
 
 Theme Name: (WP Theme)
-Version: (0.0.1)
+Version: (1.0.0)
 Template: () 
 Theme URI: (https://github.com/example/my-theme) 
 Theme Bugs URI: (https://github.com/example/wp-theme/issues) 
@@ -41,15 +47,58 @@ Function Prefix: (wp_theme)
 Class Prefix: (WP_Theme) 
 ```
 
+## Logging
+
+The tool will log its progress and errors in the console, exiting on completion and fatal errors.
+
+```shell
+Creating theme: My Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
+
+Repo cloned: https://github.com/dreamsicle-io/wp-theme-assets.git --> C:\Users\noahm\Code\create-wp-theme\tmp
+package-lock.json cleaned: C:\Users\noahm\Code\create-wp-theme\tmp\package\package-lock.json
+package.json written: C:\Users\noahm\Code\create-wp-theme\tmp\package\package.json
+File Renamed: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-my-theme-assets.php
+File built: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-my-theme-assets.php
+License fetched: GNU General Public License v3.0
+License written: C:\Users\noahm\Code\create-wp-theme\tmp\package\LICENSE
+Theme copied: C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
+Repo cleaned: C:\Users\noahm\Code\create-wp-theme\tmp
+
+Theme created: My Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
+```
+
+## Options
+
 The tool offers several options that will serve as defaults for the tool's prompt.These options can be used to customize the default options of the tool.
 
 ```shell 
 create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
 ```
 
-## The Prompts
+The above would ouput the following prompts.
 
-S
+```shell
+The following tool will help you configure your new theme.
+For each setting, set a value and hit "Enter" to continue.
+
+Theme Name: (WP Theme)
+Version: (1.0.0)
+Template: () 
+Theme URI: (https://github.com/example/my-theme) 
+Theme Bugs URI: (https://github.com/example/wp-theme/issues) 
+Theme Repository URI: (https://github.com/example/wp-theme.git) 
+Theme Repository Type: (git) 
+Description: (This theme was generated using create-wp-theme.) 
+Author: (Example, INC.)
+Author Email: (hello@example.com) 
+Author URI: (https://example.com) 
+License: (GPL-3.0) 
+Tags: (accessibility-ready, translation-ready) 
+WP Version Required: (4.9.8) 
+WP Version Tested: (4.9.8) 
+Function Prefix: (wp_theme) 
+Class Prefix: (WP_Theme) 
+```
 
 ## Help 
 
