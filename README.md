@@ -2,7 +2,6 @@
 
 Create WP Theme is a node command line tool that will scaffold a new WordPress theme with an opinionated file structure and just the right amount of starter code to get a developer started building a modern WordPress theme. This package contains just the `create-wp-theme` command, all of the actual boilerplate code comes from [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets).
 
-
 ### Usage
 
 Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of a local WordPress instance, and fire the `create-wp-theme` command.
@@ -11,13 +10,11 @@ Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of
 create-wp-theme [options] <file>
 ```
 
-
 With this in mind, all that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name. This will also serve as regular expression to replace all instances of `wp-theme` in the cloned package files.
 
 ```shell
 create-wp-theme my-theme
 ```
-
 
 Once this has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. 
 
@@ -44,18 +41,15 @@ Function Prefix: (wp_theme)
 Class Prefix: (WP_Theme) 
 ```
 
-
 The tool offers several options that will serve as defaults for the tool's prompt.These options can be used to customize the default options of the tool.
 
 ```shell 
 create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
 ```
 
-
 ### The Prompts
 
-The prompts
-
+S
 
 ### Help 
 
@@ -64,7 +58,6 @@ To get help with the tool and to learn more about usage and the available option
 ```shell
 create-wp-theme --help
 ```
-
 
 This will output all help information available including how to use the command, option flags, option descriptions, and option defaults.
 
