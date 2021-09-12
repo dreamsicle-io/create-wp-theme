@@ -1,6 +1,6 @@
 {
   "name": "create-wp-theme",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A command line tool for creating modern, optimized WordPress themes.",
   "main": "index.js",
   "bin": {
@@ -23,12 +23,14 @@
   },
   "homepage": "https://github.com/dreamsicle-io/create-wp-theme#readme",
   "dependencies": {
+    "chalk": "~4.1.2",
+    "change-case": "~4.1.2",
     "co": "~4.6.0",
     "co-prompt": "~1.0.0",
-    "commander": "~2.19.0",
-    "del": "~3.0.0",
+    "commander": "~8.2.0",
+    "del": "~6.0.0",
     "ncp": "~2.0.0",
-    "node-fetch": "~2.6.1",
+    "node-fetch": "~2.6.2",
     "nodegit": "~0.27.0"
   }
 }
