@@ -140,6 +140,7 @@ const tmpPath = path.join(__dirname, 'tmp');
 const tmpThemePath = path.join(tmpPath, 'package');
 const tmpThemePkgPath = path.join(tmpThemePath, 'package.json');
 const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
+const tmpThemeGulpPath = path.join(tmpThemePath, 'gulpfile.js');
 const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
 const themeDirName = changeCase.paramCase(program.args[0]);
 const themePath = path.join(process.cwd(), themeDirName);
@@ -201,7 +202,7 @@ function putPackage(args = null) {
 					if (paths.length > 0) {
 						console.info(chalk.bold.yellow('Repo cleaned:'), paths.join(', '));
 					}
-					console.info('\n' + chalk.bold.green('Theme created:'), args.themeName + ' in ' + themePath);
+					console.info('\n' + chalk.bold.green('Theme created:'), args.themeName + ' in ' + themePath + '\n');
 					process.exit();
 				}).catch(function(error) {
 					console.error(chalk.bold.redBright('Error:'), error);
@@ -236,24 +237,28 @@ function writeLicense(args = null) {
 		});
 }
 
-function renameFiles(args = null) {
+function replaceRename(args = null) {
+	const ignoreFiles = [tmpThemePkgLockPath, tmpThemePkgPath, tmpThemeGulpPath];
 	const files = walkDirectories(tmpThemePath);
 	files.forEach(file => {
-		const fileName = path.basename(file);
-		if (/class-wp-theme/g.test(fileName)) {
-			const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, 'class-' + changeCase.paramCase(args.classPrefix)));
-			fs.renameSync(file, newFile);
-			file = newFile;
-		}
-		const content = fs.readFileSync(file, 'utf8');
-		if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
-			content
-				.replace(/WP Theme/g, args.themeName)
-				.replace(/WP_Theme/g, args.classPrefix.replace(/[^a-zA-Z\d]/g, '_'))
-				.replace(/wp-theme/g, themeDirName)
-				.replace(/wp_theme/g, changeCase.snakeCase(args.functionPrefix));
-			fs.writeFileSync(file, content);
-			console.info(chalk.bold.yellow('File built:'), file);
+		if (! ignoreFiles.includes(file)) {
+			const fileName = path.basename(file);
+			if (/class-wp-theme/g.test(fileName)) {
+				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, 'class-' + changeCase.paramCase(args.classPrefix)));
+				fs.renameSync(file, newFile);
+				console.info(chalk.bold.yellow('File Renamed:'), newFile);
+				file = newFile;
+			}
+			var content = fs.readFileSync(file, 'utf8');
+			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
+				content = content
+					.replace(/WP Theme/g, args.themeName)
+					.replace(/WP_Theme/g, args.classPrefix.replace(/[^a-zA-Z\d]/g, '_'))
+					.replace(/wp-theme/g, themeDirName)
+					.replace(/wp_theme/g, changeCase.snakeCase(args.functionPrefix));
+				fs.writeFileSync(file, content);
+				console.info(chalk.bold.yellow('File built:'), file);
+			}
 		}
     });
 	writeLicense(args);
@@ -300,7 +305,7 @@ function writePackage(args = null) {
 							process.exit();
 						} else {
 							console.info(chalk.bold.yellow('package.json written:'), tmpThemePkgPath);
-							renameFiles(args);
+							replaceRename(args);
 						}
 					});
 				}
@@ -341,7 +346,7 @@ co(function *() {
 	var values = defaultArgs;
 	var options = program.opts();
 	for (var key in defaultArgs) {
-		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + options[key] + ') ');
+		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + defaultArgs[key] + ') ');
 		if (promptValue || options[key]) {
 			values[key] = promptValue || options[key];
 		}
