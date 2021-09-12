@@ -4,7 +4,7 @@ Create WP Theme is a node command line tool that will scaffold a new WordPress t
 
 ## Usage
 
-Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of a local WordPress instance, and fire the `npx @dreamsicle.io/create-wp-theme` command.
+Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of a local WordPress instance, and fire the `create-wp-theme` command.
 
 ```shell 
 npx @dreamsicle.io/create-wp-theme [options] <file>
@@ -14,7 +14,7 @@ npx @dreamsicle.io/create-wp-theme [options] <file>
 
 All that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name. This will also serve as regular expression to replace all instances of `wp-theme` in the cloned package files.
 
-### 1. Run the `@dreamsicle.io/create-wp-theme` command
+### 1. Run the `create-wp-theme` command
 
 ```shell
 npx @dreamsicle.io/create-wp-theme my-theme
