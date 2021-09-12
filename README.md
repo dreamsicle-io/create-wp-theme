@@ -28,21 +28,21 @@ Once the command has been run, and the tool finds that the directory is unique, 
 The following tool will help you configure your new theme.
 For each setting, set a value and hit "Enter" to continue.
 
-Theme Name: (WP Theme)
-Version: (1.0.0)
+Theme Name: (WP Theme) 
+Version: (0.0.1) 
 Template: () 
-Theme URI: (https://github.com/example/my-theme) 
+Theme URI: (https://github.com/example/wp-theme) 
 Theme Bugs URI: (https://github.com/example/wp-theme/issues) 
-Theme Repository URI: (https://github.com/example/wp-theme.git) 
+Theme Repository URI: (git@github.com:example/wp-theme.git) 
 Theme Repository Type: (git) 
 Description: (This theme was generated using create-wp-theme.) 
-Author: (Example, INC.)
+Author: (Example, INC.) 
 Author Email: (hello@example.com) 
-Author URI: (https://example.com) 
-License: (GPL-3.0) 
+Author URI: (https://www.example.com) 
+License: (UNLICENSED) 
 Tags: (accessibility-ready, translation-ready) 
-WP Version Required: (4.9.8) 
-WP Version Tested: (4.9.8) 
+WP Version Required: (5.0.0) 
+WP Version Tested: (5.0.0) 
 Function Prefix: (wp_theme) 
 Class Prefix: (WP_Theme) 
 ```
@@ -52,19 +52,18 @@ Class Prefix: (WP_Theme)
 The tool will log its progress and errors in the console, exiting on completion and fatal errors.
 
 ```shell
-Creating theme: My Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
+Creating theme: WP Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
 
 Repo cloned: https://github.com/dreamsicle-io/wp-theme-assets.git --> C:\Users\noahm\Code\create-wp-theme\tmp
 package-lock.json cleaned: C:\Users\noahm\Code\create-wp-theme\tmp\package\package-lock.json
 package.json written: C:\Users\noahm\Code\create-wp-theme\tmp\package\package.json
-File Renamed: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-my-theme-assets.php
-File built: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-my-theme-assets.php
-License fetched: GNU General Public License v3.0
+File Renamed: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-wp-theme-assets.php
+File built: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-wp-theme-assets.php
 License written: C:\Users\noahm\Code\create-wp-theme\tmp\package\LICENSE
 Theme copied: C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
 Repo cleaned: C:\Users\noahm\Code\create-wp-theme\tmp
 
-Theme created: My Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
+Theme created: WP Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
 ```
 
 ## Options
@@ -72,32 +71,16 @@ Theme created: My Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp
 The tool offers several options that will serve as defaults for the tool's prompt. These options can be used to customize the default options of the tool allowing the developer to go through the prompts faster.
 
 ```shell 
-create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
+create-wp-theme -X 1.0.0 -A Dreamsicle -E hello@dreamsicle.com -u https://www.dreamsicle.com my-theme
 ```
+> **Note:** If the option value has spaces in it, wrap it in quotes. For example - `"Example, Inc"`.
 
-**The above would ouput the following prompts:**
+**The above would set the defaults for the following prompts:**
 
 ```shell
-The following tool will help you configure your new theme.
-For each setting, set a value and hit "Enter" to continue.
-
-Theme Name: (WP Theme)
-Version: (1.0.0)
-Template: () 
-Theme URI: (https://github.com/example/my-theme) 
-Theme Bugs URI: (https://github.com/example/wp-theme/issues) 
-Theme Repository URI: (https://github.com/example/wp-theme.git) 
-Theme Repository Type: (git) 
-Description: (This theme was generated using create-wp-theme.) 
-Author: (Example, INC.)
-Author Email: (hello@example.com) 
-Author URI: (https://example.com) 
-License: (GPL-3.0) 
-Tags: (accessibility-ready, translation-ready) 
-WP Version Required: (4.9.8) 
-WP Version Tested: (4.9.8) 
-Function Prefix: (wp_theme) 
-Class Prefix: (WP_Theme) 
+Author: (Dreamsicle) 
+Author Email: (hello@dreamsicle.com) 
+Author URI: (https://www.dreamsicle.com)  
 ```
 
 ## Help 
@@ -118,18 +101,18 @@ Options:
   -N, --themeName <name>                The theme name (default: "WP Theme")
   -X, --themeVersion [version]          The theme version (default: "0.0.1")
   -T, --themeTemplate [theme]           The parent theme if this is a child theme (default: "")
-  -U, --themeURI [uri]                  The theme URI (default: "https://github.com/dreamsicle-io/create-wp-theme")
-  -B, --themeBugsURI [uri]              The theme bugs URI (default: "https://github.com/dreamsicle-io/create-wp-theme/issues")
-  -R, --themeRepoURI [uri]              The theme repository URI (default: "https://github.com/dreamsicle-io/create-wp-theme.git")
+  -U, --themeURI [uri]                  The theme URI (default: "https://github.com/example/wp-theme")
+  -B, --themeBugsURI [uri]              The theme bugs URI (default: "https://github.com/example/wp-theme/issues")
+  -R, --themeRepoURI [uri]              The theme repository URI (default: "git@github.com:example/wp-theme.git")
   -r, --themeRepoType [type]            The theme repository type (default: "git")
-  -d, --themeDescription [description]  The theme description (default: "This theme was generated using create-wp-theme.")
-  -A, --themeAuthor [name]              The theme author (default: "Dreamsicle")
-  -E, --themeAuthorEmail [email]        The theme author email (default: "hello@dreamsicle.io")
-  -u, --themeAuthorURI [uri]            The theme author URI (default: "https://www.dreamsicle.io")
-  -L, --themeLicense [spdx]             The theme license as a valid SPDX expression (default: "GPL-3.0")
-  -t, --themeTags [tags]                A CSV of WordPress theme tags (default: "accessibility-ready, translation-ready")
-  -W, --wpVersionRequired [version]     The version of WordPress the theme requires (default: "4.9.8")
-  -w, --wpVersionTested [version]       The version of WordPress the theme has been tested up to (default: "4.9.8")
+  -d, --themeDescription [description]  The theme description (default: "This theme was generated using create-wp-theme.") 
+  -A, --themeAuthor [name]              The theme author (default: "Example, INC.")
+  -E, --themeAuthorEmail [email]        The theme author email (default: "hello@example.com")
+  -u, --themeAuthorURI [uri]            The theme author URI (default: "https://www.example.com")
+  -L, --themeLicense [spdx]             The theme license as a valid SPDX expression (default: "UNLICENSED")
+  -t, --themeTags [tags]                A CSV of WordPress theme tags (default: "accessibility-ready, translation-ready")  
+  -W, --wpVersionRequired [version]     The version of WordPress the theme requires (default: "5.0.0")
+  -w, --wpVersionTested [version]       The version of WordPress the theme has been tested up to (default: "5.0.0")        
   -F, --functionPrefix [prefix]         The prefix for PHP functions (default: "wp_theme")
   -C, --classPrefix [prefix]            The prefix for PHP classes (default: "WP_Theme")
   -h, --help                            display help for command

@@ -19,18 +19,18 @@ const defaultArgs = {
 	themeName: 'WP Theme', 
 	themeVersion: '0.0.1', 
 	themeTemplate: '', 
-	themeURI: 'https://github.com/dreamsicle-io/create-wp-theme', 
-	themeBugsURI: 'https://github.com/dreamsicle-io/create-wp-theme/issues', 
-	themeRepoURI: 'https://github.com/dreamsicle-io/create-wp-theme.git', 
+	themeURI: 'https://github.com/example/wp-theme', 
+	themeBugsURI: 'https://github.com/example/wp-theme/issues', 
+	themeRepoURI: 'git@github.com:example/wp-theme.git', 
 	themeRepoType: 'git', 
 	themeDescription: 'This theme was generated using create-wp-theme.', 
-	themeAuthor: 'Dreamsicle', 
-	themeAuthorEmail: 'hello@dreamsicle.io', 
-	themeAuthorURI: 'https://www.dreamsicle.io', 
-	themeLicense: 'GPL-3.0', 
+	themeAuthor: 'Example, INC.', 
+	themeAuthorEmail: 'hello@example.com', 
+	themeAuthorURI: 'https://www.example.com', 
+	themeLicense: 'UNLICENSED', 
 	themeTags: 'accessibility-ready, translation-ready', 
-	wpVersionRequired: '4.9.8', 
-	wpVersionTested: '4.9.8', 
+	wpVersionRequired: '5.0.0', 
+	wpVersionTested: '5.0.0', 
 	functionPrefix: 'wp_theme',
 	classPrefix: 'WP_Theme',
 };
@@ -213,28 +213,40 @@ function putPackage(args = null) {
 }
 
 function writeLicense(args = null) {
-	fetch('https://api.github.com/licenses/' + encodeURIComponent(args.themeLicense.toLowerCase()))
-		.then(function(response) {
-			if (response.status === 200) {
-				return response.json();
-			} else {
-				throw new Error(response.json().message);
-			}
-		}).then(function(data) {
-			console.info(chalk.bold.yellow('License fetched:'), data.name);
-			fs.writeFile(tmpThemeLicPath, data.body, function(error) {
-				if (error) {
-					console.error(chalk.bold.redBright('Error:'), error);
-					process.exit();
+	if (args.themeLicense !== 'UNLICENSED') {
+		fetch('https://api.github.com/licenses/' + encodeURIComponent(args.themeLicense.toLowerCase()))
+			.then(function(response) {
+				if (response.status === 200) {
+					return response.json();
 				} else {
-					console.info(chalk.bold.yellow('License written:'), tmpThemeLicPath);
-					putPackage(args);
+					throw new Error(response.json().message);
 				}
+			}).then(function(data) {
+				console.info(chalk.bold.yellow('License fetched:'), data.name);
+				fs.writeFile(tmpThemeLicPath, data.body, function(error) {
+					if (error) {
+						console.error(chalk.bold.redBright('Error:'), error);
+						process.exit();
+					} else {
+						console.info(chalk.bold.yellow('License written:'), tmpThemeLicPath);
+						putPackage(args);
+					}
+				});
+			}).catch(function(error) {
+				console.error(chalk.bold.redBright('Error:'), error);
+				putPackage(args);
 			});
-		}).catch(function(error) {
-			console.error(chalk.bold.redBright('Error:'), error);
-			putPackage(args);
+	} else {
+		fs.writeFile(tmpThemeLicPath, 'UNLICENSED', function(error) {
+			if (error) {
+				console.error(chalk.bold.redBright('Error:'), error);
+				process.exit();
+			} else {
+				console.info(chalk.bold.yellow('License written:'), tmpThemeLicPath);
+				putPackage(args);
+			}
 		});
+	}
 }
 
 function replaceRename(args = null) {
