@@ -3,14 +3,17 @@
 
 const path = require('path');
 const fs = require('fs');
-const program = require('commander');
 const co = require('co');
 const prompt = require('co-prompt');
 const nodegit = require('nodegit');
 const del = require('del');
 const ncp = require('ncp').ncp;
 const fetch = require('node-fetch');
+const changeCase = require('change-case');
+const chalk = require('chalk');
 const pkg = require('./package.json');
+const Command = require('commander').Command;
+const program = new Command();
 
 const defaultArgs = {
 	themeName: 'WP Theme', 
@@ -28,6 +31,8 @@ const defaultArgs = {
 	themeTags: 'accessibility-ready, translation-ready', 
 	wpVersionRequired: '4.9.8', 
 	wpVersionTested: '4.9.8', 
+	functionPrefix: 'wp_theme',
+	classPrefix: 'WP_Theme',
 };
 
 const argTypes = {
@@ -46,6 +51,8 @@ const argTypes = {
 	themeTags: 'tags', 
 	wpVersionRequired: 'version', 
 	wpVersionTested: 'version', 
+	functionPrefix: 'prefix',
+	classPrefix: 'prefix',
 };
 
 const argTitles = {
@@ -64,6 +71,8 @@ const argTitles = {
 	themeTags: 'Tags', 
 	wpVersionRequired: 'WP Version Required', 
 	wpVersionTested: 'WP Version Tested', 
+	functionPrefix: 'Function Prefix',
+	classPrefix: 'Class Prefix',
 };
 
 const argDescriptions = {
@@ -82,6 +91,8 @@ const argDescriptions = {
 	themeTags: 'A CSV of WordPress theme tags', 
 	wpVersionRequired: 'The version of WordPress the theme requires', 
 	wpVersionTested: 'The version of WordPress the theme has been tested up to', 
+	functionPrefix: 'The prefix for PHP functions',
+	classPrefix: 'The prefix for PHP classes',
 };
 
 const argAliases = {
@@ -100,6 +111,8 @@ const argAliases = {
 	themeTags: 't', 
 	wpVersionRequired: 'W', 
 	wpVersionTested: 'w', 
+	functionPrefix: 'F',
+	classPrefix: 'C',
 };
 
 const requiredArgs = [
@@ -128,17 +141,32 @@ const tmpThemePath = path.join(tmpPath, 'package');
 const tmpThemePkgPath = path.join(tmpThemePath, 'package.json');
 const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
 const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
-const themeDirName = program.args[0];
+const themeDirName = changeCase.paramCase(program.args[0]);
 const themePath = path.join(process.cwd(), themeDirName);
 const cloneOptions = {
 	fetchOpts: {
 		callbacks: {
-			// This is a required callback for OS X machines.  There is a known issue
+			// This is a required callback for OS X machines. There is a known issue
 			// with libgit2 being able to verify certificates from GitHub.
 			certificateCheck: function() { return 1; }
 		}
 	}
 };
+
+function walkDirectories(dirPath) {
+    var results = [];
+    var files = fs.readdirSync(dirPath);
+    files.forEach(function(file) {
+        filePath = path.join(dirPath, file);
+        var stat = fs.statSync(filePath);
+        if (stat.isDirectory()) { 
+            results = results.concat(walkDirectories(filePath));
+        } else { 
+            results.push(filePath);
+        }
+    });
+    return results;
+}
 
 function pathExists(path = '') {
 	var exists = true;
@@ -164,19 +192,19 @@ function getCommandName() {
 function putPackage(args = null) {
 	ncp(tmpThemePath, themePath, function(error) {
 		if (error) {
-			console.error(error);
+			console.error(chalk.bold.redBright('Error:'), error);
 			process.exit();
 		} else {
-			console.info('Theme copied: ' + themePath);
+			console.info(chalk.bold.yellow('Theme copied:'), themePath);
 			del([tmpPath], { force: true })
 				.then(function(paths) {
 					if (paths.length > 0) {
-						console.info('Repo cleaned: ' + paths.join(', '));
+						console.info(chalk.bold.yellow('Repo cleaned:'), paths.join(', '));
 					}
-					console.info('\nTheme created: ' + args.themeName + ' in ' + themePath);
+					console.info('\n' + chalk.bold.green('Theme created:'), args.themeName + ' in ' + themePath);
 					process.exit();
 				}).catch(function(error) {
-					console.error(error);
+					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
 				});
 		}
@@ -189,34 +217,57 @@ function writeLicense(args = null) {
 			if (response.status === 200) {
 				return response.json();
 			} else {
-				throw new Error('License not found: ' + args.themeLicense);
+				throw new Error(response.json().message);
 			}
 		}).then(function(data) {
-			console.info('License fetched: ' + data.name);
+			console.info(chalk.bold.yellow('License fetched:'), data.name);
 			fs.writeFile(tmpThemeLicPath, data.body, function(error) {
 				if (error) {
-					console.error(error);
+					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
 				} else {
-					console.info('License written: ' + tmpThemeLicPath);
+					console.info(chalk.bold.yellow('License written:'), tmpThemeLicPath);
 					putPackage(args);
 				}
 			});
 		}).catch(function(error) {
-			console.info(error.message);
+			console.error(chalk.bold.redBright('Error:'), error);
 			putPackage(args);
 		});
+}
+
+function renameFiles(args = null) {
+	const files = walkDirectories(tmpThemePath);
+	files.forEach(file => {
+		const fileName = path.basename(file);
+		if (/class-wp-theme/g.test(fileName)) {
+			const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, 'class-' + changeCase.paramCase(args.classPrefix)));
+			fs.renameSync(file, newFile);
+			file = newFile;
+		}
+		const content = fs.readFileSync(file, 'utf8');
+		if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
+			content
+				.replace(/WP Theme/g, args.themeName)
+				.replace(/WP_Theme/g, args.classPrefix.replace(/[^a-zA-Z\d]/g, '_'))
+				.replace(/wp-theme/g, themeDirName)
+				.replace(/wp_theme/g, changeCase.snakeCase(args.functionPrefix));
+			fs.writeFileSync(file, content);
+			console.info(chalk.bold.yellow('File built:'), file);
+		}
+    });
+	writeLicense(args);
 }
 
 function writePackage(args = null) {
 	del([tmpThemePkgLockPath], { force: true })
 		.then(function(paths) {
 			if (paths.length > 0) {
-				console.info('package-lock.json cleaned: ' + paths.join(', '));
+				console.info(chalk.bold.yellow('package-lock.json cleaned:'), paths.join(', '));
 			}
 			fs.readFile(tmpThemePkgPath, function(error, data) {
 				if (error) {
-					console.error(error);
+					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
 				} else {
 					themePkg = JSON.parse(data);
@@ -245,17 +296,17 @@ function writePackage(args = null) {
 					};
 					fs.writeFile(tmpThemePkgPath, JSON.stringify(themePkg, null, '\t'), function(error) {
 						if (error) {
-							console.error(error);
+							console.error(chalk.bold.redBright('Error:'), error);
 							process.exit();
 						} else {
-							console.info('package.json written: ' + tmpThemePkgPath);
-							writeLicense(args);
+							console.info(chalk.bold.yellow('package.json written:'), tmpThemePkgPath);
+							renameFiles(args);
 						}
 					});
 				}
 			});
 		}).catch(function(error) {
-			console.error(error);
+			console.error(chalk.bold.redBright('Error:'), error);
 			process.exit();
 		});
 }
@@ -264,41 +315,42 @@ function clonePackage(args = null) {
 	del([tmpPath], { force: true })
 		.then(function(paths) {
 			if (paths.length > 0) {
-				console.info('Repo cleaned: ' + paths.join(', '));
+				console.info(chalk.bold('Repo cleaned:'), paths.join(', '));
 			}
 			nodegit.Clone(repoPath, tmpPath, cloneOptions)
 				.then(function(repo) {
-					console.info('Repo cloned: ' + repoPath + ' --> ' + tmpPath);
+					console.info(chalk.bold.yellow('Repo cloned:'), repoPath + ' --> ' + tmpPath);
 					writePackage(args);
 				}).catch(function(error) {
-					console.error(error);
+					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
 				});
 		})
 		.catch(function(error) {
-			console.error(error);
+			console.error(chalk.bold.redBright('Error:'), error);
 			process.exit();
 		});
 }
 
 co(function *() {
 	if (pathExists(themePath)) {
-		console.log('\nPath already exists: ' + themePath);
+		console.error('\n' + chalk.bold.redBright('Error:'), chalk.bold('Path already exists:'), themePath);
 		process.exit();
 	}
-	console.info('\nThe following tool will help you configure your new theme.\nFor each setting, set a value and hit "Enter" to continue.\n');
+	console.info('\n' + chalk.bold('The following tool will help you configure your new theme.'), '\nFor each setting, set a value and hit "Enter" to continue.\n');
 	var values = defaultArgs;
+	var options = program.opts();
 	for (var key in defaultArgs) {
-		const promptValue = yield prompt(argTitles[key] + ': (' + program[key] + ') ');
-		if (promptValue || program[key]) {
-			values[key] = promptValue || program[key];
+		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + options[key] + ') ');
+		if (promptValue || options[key]) {
+			values[key] = promptValue || options[key];
 		}
 	}
 	return values;
 }).then(function(args) {
-	console.info('\nCreating theme: ' + args.themeName + ' in ' + themePath + '\n');
+	console.info('\n' + chalk.bold.green('Creating theme:'), args.themeName + ' in ' + themePath + '\n');
 	clonePackage(args);
 }, function(error) {
-	console.error(error);
+	console.error(chalk.bold.redBright('Error:'), error);
 	process.exit();
 });
