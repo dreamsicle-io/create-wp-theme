@@ -1,17 +1,18 @@
 {
-  "name": "create-wp-theme",
-  "version": "1.0.0",
+  "name": "@dreamsicle.io/create-wp-theme",
+  "version": "1.0.1",
   "description": "A command line tool for creating modern, optimized WordPress themes.",
   "main": "index.js",
   "bin": {
     "create-wp-theme": "index.js"
   },
   "scripts": {
+    "deploy": "npm publish --access public",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dreamsicle-io/create-wp-theme.git"
+    "url": "git@github.com:dreamsicle-io/create-wp-theme.git"
   },
   "keywords": [
     "wordpress"

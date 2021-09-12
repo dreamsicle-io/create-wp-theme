@@ -1,13 +1,13 @@
 # Create WP Theme
 
-Create WP Theme is a node command line tool that will scaffold a new WordPress theme with an opinionated file structure and just the right amount of starter code to get a developer started building a modern WordPress theme. This package contains just the `create-wp-theme` command, all of the actual boilerplate code comes from [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets).
+Create WP Theme is a node command line tool that will scaffold a new WordPress theme with an opinionated file structure and just the right amount of starter code to get a developer started building a modern WordPress theme. This package contains just the `npx @dreamsicle.io/create-wp-theme` command, all of the actual boilerplate code comes from [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets).
 
 ## Usage
 
 Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of a local WordPress instance, and fire the `create-wp-theme` command.
 
 ```shell 
-create-wp-theme [options] <file>
+npx @dreamsicle.io/create-wp-theme [options] <file>
 ```
 
 ## Getting Started
@@ -17,8 +17,10 @@ All that is necessary to start using the tool is a single argument of `file`, wh
 ### 1. Run the `create-wp-theme` command
 
 ```shell
-create-wp-theme my-theme
+npx @dreamsicle.io/create-wp-theme my-theme
 ```
+
+> **Note:** Change `my-theme` to the desired theme directory/text-domain.
 
 ### 2. Follow the prompts
 
@@ -71,8 +73,9 @@ Theme created: WP Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp
 The tool offers several options that will serve as defaults for the tool's prompt. These options can be used to customize the default options of the tool allowing the developer to go through the prompts faster.
 
 ```shell 
-create-wp-theme -X 1.0.0 -A Dreamsicle -E hello@dreamsicle.com -u https://www.dreamsicle.com my-theme
+npx @dreamsicle.io/create-wp-theme -X 1.0.0 -A Dreamsicle -E hello@dreamsicle.com -u https://www.dreamsicle.com my-theme
 ```
+
 > **Note:** If the option value has spaces in it, wrap it in quotes. For example - `"Example, Inc"`.
 
 **The above would set the defaults for the following prompts:**
@@ -88,7 +91,7 @@ Author URI: (https://www.dreamsicle.com)
 To get help with the tool and to learn more about usage and the available options, use the `--help` or `-h` flag. This will output all help information available including how to use the command, option flags, option descriptions, and option defaults.
 
 ```shell
-create-wp-theme --help
+npx @dreamsicle.io/create-wp-theme --help
 ```
 
 **The above would ouput the following help information:**
