@@ -34,4 +34,3 @@ jobs:
           release_name: Release Draft
           draft: true
           prerelease: false
-          
