@@ -10,10 +10,16 @@ Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of
 create-wp-theme [options] <file>
 ```
 
-With this in mind, all that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name.
+With this in mind, all that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name. This will also serve as regular expression to replace all instances of `wp-theme` in the cloned package files.
 
 ```shell
 create-wp-theme my-theme
+```
+
+Once this has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. The tool offers several options that will serve as defaults for the tool's prompt.These options can be used to customize the default options of the tool.
+
+```shell 
+create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
 ```
 
 ### Help 
