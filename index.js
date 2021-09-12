@@ -346,7 +346,7 @@ co(function *() {
 	var values = defaultArgs;
 	var options = program.opts();
 	for (var key in defaultArgs) {
-		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + defaultArgs[key] + ') ');
+		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + options[key] + ') ');
 		if (promptValue || options[key]) {
 			values[key] = promptValue || options[key];
 		}
