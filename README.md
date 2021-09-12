@@ -16,11 +16,42 @@ With this in mind, all that is necessary to start using the tool is a single arg
 create-wp-theme my-theme
 ```
 
-Once this has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. The tool offers several options that will serve as defaults for the tool's prompt.These options can be used to customize the default options of the tool.
+Once this has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. 
+
+```shell
+$ create-wp-theme my-theme
+
+The following tool will help you configure your new theme.
+For each setting, set a value and hit "Enter" to continue.
+
+Theme Name: (WP Theme) My Theme
+Version: (0.0.1) 1.0.0
+Template: () 
+Theme URI: (https://github.com/dreamsicle-io/create-wp-theme) https://github.com/example/my-theme              
+Theme Bugs URI: (https://github.com/dreamsicle-io/create-wp-theme/issues) https://github.com/example/wp-theme/issues              
+Theme Repository URI: (https://github.com/dreamsicle-io/create-wp-theme.git) https://github.com/example/wp-theme.git              
+Theme Repository Type: (git) 
+Description: (This theme was generated using create-wp-theme.) 
+Author: (Dreamsicle) Example, INC.
+Author Email: (hello@dreamsicle.io) hello@example.com
+Author URI: (https://www.dreamsicle.io) https://example.com        
+License: (GPL-3.0) 
+Tags: (accessibility-ready, translation-ready) 
+WP Version Required: (4.9.8) 5.8.0
+WP Version Tested: (4.9.8) 5.8.1
+Function Prefix: (wp_theme) my_theme
+Class Prefix: (WP_Theme) My_Theme
+```
+
+The tool offers several options that will serve as defaults for the tool's prompt.These options can be used to customize the default options of the tool.
 
 ```shell 
 create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
 ```
+
+### The Prompts
+
+S
 
 ### Help 
 
