@@ -2,6 +2,7 @@
 
 Create WP Theme is a node command line tool that will scaffold a new WordPress theme with an opinionated file structure and just the right amount of starter code to get a developer started building a modern WordPress theme. This package contains just the `create-wp-theme` command, all of the actual boilerplate code comes from [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets).
 
+
 ### Usage
 
 Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of a local WordPress instance, and fire the `create-wp-theme` command.
@@ -10,38 +11,39 @@ Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of
 create-wp-theme [options] <file>
 ```
 
+
 With this in mind, all that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name. This will also serve as regular expression to replace all instances of `wp-theme` in the cloned package files.
 
 ```shell
 create-wp-theme my-theme
 ```
 
+
 Once this has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. 
 
 ```shell
-$ create-wp-theme my-theme
-
 The following tool will help you configure your new theme.
 For each setting, set a value and hit "Enter" to continue.
 
-Theme Name: (WP Theme) My Theme
-Version: (0.0.1) 1.0.0
+Theme Name: (WP Theme)
+Version: (0.0.1)
 Template: () 
-Theme URI: (https://github.com/dreamsicle-io/create-wp-theme) https://github.com/example/my-theme              
-Theme Bugs URI: (https://github.com/dreamsicle-io/create-wp-theme/issues) https://github.com/example/wp-theme/issues              
-Theme Repository URI: (https://github.com/dreamsicle-io/create-wp-theme.git) https://github.com/example/wp-theme.git              
+Theme URI: (https://github.com/example/my-theme) 
+Theme Bugs URI: (https://github.com/example/wp-theme/issues) 
+Theme Repository URI: (https://github.com/example/wp-theme.git) 
 Theme Repository Type: (git) 
 Description: (This theme was generated using create-wp-theme.) 
-Author: (Dreamsicle) Example, INC.
-Author Email: (hello@dreamsicle.io) hello@example.com
-Author URI: (https://www.dreamsicle.io) https://example.com        
+Author: (Example, INC.)
+Author Email: (hello@example.com) 
+Author URI: (https://example.com) 
 License: (GPL-3.0) 
 Tags: (accessibility-ready, translation-ready) 
-WP Version Required: (4.9.8) 5.8.0
-WP Version Tested: (4.9.8) 5.8.1
-Function Prefix: (wp_theme) my_theme
-Class Prefix: (WP_Theme) My_Theme
+WP Version Required: (4.9.8) 
+WP Version Tested: (4.9.8) 
+Function Prefix: (wp_theme) 
+Class Prefix: (WP_Theme) 
 ```
+
 
 The tool offers several options that will serve as defaults for the tool's prompt.These options can be used to customize the default options of the tool.
 
@@ -49,9 +51,11 @@ The tool offers several options that will serve as defaults for the tool's promp
 create-wp-theme -X 1.0.0 -A "Example, INC." -E hello@example.com -u https://example.com my-theme
 ```
 
+
 ### The Prompts
 
-S
+The prompts
+
 
 ### Help 
 
@@ -60,6 +64,7 @@ To get help with the tool and to learn more about usage and the available option
 ```shell
 create-wp-theme --help
 ```
+
 
 This will output all help information available including how to use the command, option flags, option descriptions, and option defaults.
 
