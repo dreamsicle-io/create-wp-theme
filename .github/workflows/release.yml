@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
+      - name: Checkout Repo
+        id: checkout_repo
+        uses: actions/checkout@v2
+
+      # Gets the version from package.json and sets it as an environment variable.
+      - name: Set Module Version
+        id: set_module_version
+        run: echo "MODULE_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+
+      # Creates a release draft.
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          name: ${{ env.MODULE_VERSION }}
+          tag: ${{ env.MODULE_VERSION }}
+          draft: true
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generateReleaseNotes: true
+          skipIfReleaseExists: true

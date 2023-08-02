@@ -1,0 +1,35 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
+      - name: Checkout Repo
+        id: checkout_repo
+        uses: actions/checkout@v2
+
+      # Gets the Node version from .nvmrc and sets it as an environment variable.
+      - name: Set Node Version
+        id: set_node_version
+        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_ENV
+
+      # Setup Node.
+      - name: Setup Node
+        id: setup_node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+
+      # Publish public package to NPM.
+      - name: Publish
+        id: publish
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
