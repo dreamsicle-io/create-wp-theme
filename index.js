@@ -33,26 +33,28 @@ const defaultArgs = {
 	wpVersionTested: '5.0.0', 
 	functionPrefix: 'wp_theme',
 	classPrefix: 'WP_Theme',
+	path: process.cwd(),
 };
 
 const argTypes = {
-	themeName: 'name', 
-	themeVersion: 'version',
-	themeTemplate: 'theme', 
-	themeURI: 'uri', 
-	themeBugsURI: 'uri', 
-	themeRepoURI: 'uri', 
-	themeRepoType: 'type', 
-	themeDescription: 'description', 
-	themeAuthor: 'name', 
-	themeAuthorEmail: 'email', 
-	themeAuthorURI: 'uri', 
-	themeLicense: 'spdx', 
-	themeTags: 'tags', 
-	wpVersionRequired: 'version', 
-	wpVersionTested: 'version', 
-	functionPrefix: 'prefix',
-	classPrefix: 'prefix',
+	themeName: 'string', 
+	themeVersion: 'string',
+	themeTemplate: 'string', 
+	themeURI: 'string', 
+	themeBugsURI: 'string', 
+	themeRepoURI: 'string', 
+	themeRepoType: 'string', 
+	themeDescription: 'string', 
+	themeAuthor: 'string', 
+	themeAuthorEmail: 'string', 
+	themeAuthorURI: 'string', 
+	themeLicense: 'string', 
+	themeTags: 'string', 
+	wpVersionRequired: 'string', 
+	wpVersionTested: 'string', 
+	functionPrefix: 'string',
+	classPrefix: 'string',
+	path: 'string',
 };
 
 const argTitles = {
@@ -73,6 +75,7 @@ const argTitles = {
 	wpVersionTested: 'WP Version Tested', 
 	functionPrefix: 'Function Prefix',
 	classPrefix: 'Class Prefix',
+	path: 'Path',
 };
 
 const argDescriptions = {
@@ -93,6 +96,7 @@ const argDescriptions = {
 	wpVersionTested: 'The version of WordPress the theme has been tested up to', 
 	functionPrefix: 'The prefix for PHP functions',
 	classPrefix: 'The prefix for PHP classes',
+	path: 'The path where the built theme directory will be placed.',
 };
 
 const argAliases = {
@@ -113,6 +117,7 @@ const argAliases = {
 	wpVersionTested: 'w', 
 	functionPrefix: 'F',
 	classPrefix: 'C',
+	path: 'p',
 };
 
 const requiredArgs = [
@@ -143,7 +148,7 @@ const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
 const tmpThemeGulpPath = path.join(tmpThemePath, 'gulpfile.js');
 const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
 const themeDirName = changeCase.paramCase(program.args[0]);
-const themePath = path.join(process.cwd(), themeDirName);
+
 const cloneOptions = {
 	fetchOpts: {
 		callbacks: {
@@ -191,6 +196,10 @@ function getCommandName() {
 }
 
 function putPackage(args = null) {
+	const themePath = path.join(args.path, themeDirName);
+	if (! pathExists(args.path)) {
+		fs.mkdirSync(args.path);
+	}
 	ncp(tmpThemePath, themePath, function(error) {
 		if (error) {
 			console.error(chalk.bold.redBright('Error:'), error);
@@ -350,24 +359,25 @@ function clonePackage(args = null) {
 }
 
 co(function *() {
-	if (pathExists(themePath)) {
-		console.error('\n' + chalk.bold.redBright('Error:'), chalk.bold('Path already exists:'), themePath);
-		process.exit();
-	}
 	console.info('\n' + chalk.bold('The following tool will help you configure your new theme.'), '\nFor each setting, set a value and hit "Enter" to continue.\n');
-	var values = defaultArgs;
+	var args = defaultArgs;
 	var options = program.opts();
 	for (var key in defaultArgs) {
 		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + options[key] + ') ');
 		if (promptValue || options[key]) {
-			values[key] = promptValue || options[key];
+			args[key] = promptValue || options[key];
 		}
 	}
-	return values;
+	return args;
 }).then(function(args) {
+	const themePath = path.join(args.path, themeDirName);
+	if (pathExists(themePath)) {
+		console.error('\n' + chalk.bold.redBright('Error:'), chalk.bold('Path already exists:'), themePath);
+		process.exit();
+	}
 	console.info('\n' + chalk.bold.green('Creating theme:'), args.themeName + ' in ' + themePath + '\n');
 	clonePackage(args);
-}, function(error) {
+}).catch(function(error) {
 	console.error(chalk.bold.redBright('Error:'), error);
 	process.exit();
 });
