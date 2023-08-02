@@ -1,0 +1,16 @@
+# Config
+/.github
+/.vscode
+.editorconfig
+.gitignore
+.npmignore
+.nvmrc
+
+# Deps
+/node_modules
+
+# Temp files
+/tmp
+
+# Tests
+/tests
