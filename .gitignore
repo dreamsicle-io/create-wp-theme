@@ -1,5 +1,8 @@
-# dependencies
+# Deps
 /node_modules
 
-# tmp
+# Temp files
 /tmp
+
+# Tests
+/tests
