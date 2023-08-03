@@ -1,14 +1,14 @@
 {
   "name": "@dreamsicle.io/create-wp-theme",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A command line tool for creating modern, optimized WordPress themes.",
   "main": "index.js",
   "bin": {
     "create-wp-theme": "index.js"
   },
   "scripts": {
-    "deploy": "npm publish --access public",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint .",
+    "test": "node index.js -p tests"
   },
   "repository": {
     "type": "git",
@@ -32,6 +32,9 @@
     "del": "~6.0.0",
     "ncp": "~2.0.0",
     "node-fetch": "~2.6.2",
-    "nodegit": "~0.27.0"
+    "nodegit": "~0.28.0-alpha.21"
+  },
+  "devDependencies": {
+    "eslint": "~8.46.0"
   }
 }

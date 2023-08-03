@@ -1,4 +1,4 @@
-#!/usr/bin/env node --harmony
+#!/usr/bin/env node
 'use-strict';
 
 const path = require('path');
@@ -16,107 +16,112 @@ const Command = require('commander').Command;
 const program = new Command();
 
 const defaultArgs = {
-	themeName: 'WP Theme', 
-	themeVersion: '0.0.1', 
-	themeTemplate: '', 
-	themeURI: 'https://github.com/example/wp-theme', 
-	themeBugsURI: 'https://github.com/example/wp-theme/issues', 
-	themeRepoURI: 'git@github.com:example/wp-theme.git', 
-	themeRepoType: 'git', 
-	themeDescription: 'This theme was generated using create-wp-theme.', 
-	themeAuthor: 'Example, INC.', 
-	themeAuthorEmail: 'hello@example.com', 
-	themeAuthorURI: 'https://www.example.com', 
-	themeLicense: 'UNLICENSED', 
-	themeTags: 'accessibility-ready, translation-ready', 
-	wpVersionRequired: '5.0.0', 
-	wpVersionTested: '5.0.0', 
+	themeName: 'WP Theme',
+	themeVersion: '0.0.1',
+	themeTemplate: '',
+	themeURI: 'https://github.com/example/wp-theme',
+	themeBugsURI: 'https://github.com/example/wp-theme/issues',
+	themeRepoURI: 'git@github.com:example/wp-theme.git',
+	themeRepoType: 'git',
+	themeDescription: 'This theme was generated using create-wp-theme.',
+	themeAuthor: 'Example, INC.',
+	themeAuthorEmail: 'hello@example.com',
+	themeAuthorURI: 'https://www.example.com',
+	themeLicense: 'UNLICENSED',
+	themeTags: 'accessibility-ready, translation-ready',
+	wpVersionRequired: '5.0.0',
+	wpVersionTested: '5.0.0',
 	functionPrefix: 'wp_theme',
 	classPrefix: 'WP_Theme',
+	path: process.cwd(),
 };
 
 const argTypes = {
-	themeName: 'name', 
-	themeVersion: 'version',
-	themeTemplate: 'theme', 
-	themeURI: 'uri', 
-	themeBugsURI: 'uri', 
-	themeRepoURI: 'uri', 
-	themeRepoType: 'type', 
-	themeDescription: 'description', 
-	themeAuthor: 'name', 
-	themeAuthorEmail: 'email', 
-	themeAuthorURI: 'uri', 
-	themeLicense: 'spdx', 
-	themeTags: 'tags', 
-	wpVersionRequired: 'version', 
-	wpVersionTested: 'version', 
-	functionPrefix: 'prefix',
-	classPrefix: 'prefix',
+	themeName: 'string',
+	themeVersion: 'string',
+	themeTemplate: 'string',
+	themeURI: 'string',
+	themeBugsURI: 'string',
+	themeRepoURI: 'string',
+	themeRepoType: 'string',
+	themeDescription: 'string',
+	themeAuthor: 'string',
+	themeAuthorEmail: 'string',
+	themeAuthorURI: 'string',
+	themeLicense: 'string',
+	themeTags: 'string',
+	wpVersionRequired: 'string',
+	wpVersionTested: 'string',
+	functionPrefix: 'string',
+	classPrefix: 'string',
+	path: 'string',
 };
 
 const argTitles = {
-	themeName: 'Theme Name', 
+	themeName: 'Theme Name',
 	themeVersion: 'Version',
-	themeTemplate: 'Template', 
-	themeURI: 'Theme URI', 
-	themeBugsURI: 'Theme Bugs URI', 
-	themeRepoURI: 'Theme Repository URI', 
-	themeRepoType: 'Theme Repository Type', 
-	themeDescription: 'Description', 
-	themeAuthor: 'Author', 
-	themeAuthorEmail: 'Author Email', 
-	themeAuthorURI: 'Author URI', 
-	themeLicense: 'License', 
-	themeTags: 'Tags', 
-	wpVersionRequired: 'WP Version Required', 
-	wpVersionTested: 'WP Version Tested', 
+	themeTemplate: 'Template',
+	themeURI: 'Theme URI',
+	themeBugsURI: 'Theme Bugs URI',
+	themeRepoURI: 'Theme Repository URI',
+	themeRepoType: 'Theme Repository Type',
+	themeDescription: 'Description',
+	themeAuthor: 'Author',
+	themeAuthorEmail: 'Author Email',
+	themeAuthorURI: 'Author URI',
+	themeLicense: 'License',
+	themeTags: 'Tags',
+	wpVersionRequired: 'WP Version Required',
+	wpVersionTested: 'WP Version Tested',
 	functionPrefix: 'Function Prefix',
 	classPrefix: 'Class Prefix',
+	path: 'Path',
 };
 
 const argDescriptions = {
-	themeName: 'The theme name', 
+	themeName: 'The theme name',
 	themeVersion: 'The theme version',
-	themeTemplate: 'The parent theme if this is a child theme', 
-	themeURI: 'The theme URI', 
-	themeBugsURI: 'The theme bugs URI', 
-	themeRepoURI: 'The theme repository URI', 
-	themeRepoType: 'The theme repository type', 
-	themeDescription: 'The theme description', 
-	themeAuthor: 'The theme author', 
-	themeAuthorEmail: 'The theme author email', 
-	themeAuthorURI: 'The theme author URI', 
-	themeLicense: 'The theme license as a valid SPDX expression', 
-	themeTags: 'A CSV of WordPress theme tags', 
-	wpVersionRequired: 'The version of WordPress the theme requires', 
-	wpVersionTested: 'The version of WordPress the theme has been tested up to', 
+	themeTemplate: 'The parent theme if this is a child theme',
+	themeURI: 'The theme URI',
+	themeBugsURI: 'The theme bugs URI',
+	themeRepoURI: 'The theme repository URI',
+	themeRepoType: 'The theme repository type',
+	themeDescription: 'The theme description',
+	themeAuthor: 'The theme author',
+	themeAuthorEmail: 'The theme author email',
+	themeAuthorURI: 'The theme author URI',
+	themeLicense: 'The theme license as a valid SPDX expression',
+	themeTags: 'A CSV of WordPress theme tags',
+	wpVersionRequired: 'The version of WordPress the theme requires',
+	wpVersionTested: 'The version of WordPress the theme has been tested up to',
 	functionPrefix: 'The prefix for PHP functions',
 	classPrefix: 'The prefix for PHP classes',
+	path: 'The path where the built theme directory will be placed.',
 };
 
 const argAliases = {
-	themeName: 'N', 
-	themeVersion: 'X', 
-	themeTemplate: 'T', 
-	themeURI: 'U', 
-	themeBugsURI: 'B', 
-	themeRepoURI: 'R', 
-	themeRepoType: 'r', 
-	themeDescription: 'd', 
-	themeAuthor: 'A', 
-	themeAuthorEmail: 'E', 
-	themeAuthorURI: 'u', 
-	themeLicense: 'L', 
-	themeTags: 't', 
-	wpVersionRequired: 'W', 
-	wpVersionTested: 'w', 
+	themeName: 'N',
+	themeVersion: 'X',
+	themeTemplate: 'T',
+	themeURI: 'U',
+	themeBugsURI: 'B',
+	themeRepoURI: 'R',
+	themeRepoType: 'r',
+	themeDescription: 'd',
+	themeAuthor: 'A',
+	themeAuthorEmail: 'E',
+	themeAuthorURI: 'u',
+	themeLicense: 'L',
+	themeTags: 't',
+	wpVersionRequired: 'W',
+	wpVersionTested: 'w',
 	functionPrefix: 'F',
 	classPrefix: 'C',
+	path: 'p',
 };
 
 const requiredArgs = [
-	'themeName', 
+	'themeName',
 ];
 
 program.name(getCommandName());
@@ -143,37 +148,38 @@ const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
 const tmpThemeGulpPath = path.join(tmpThemePath, 'gulpfile.js');
 const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
 const themeDirName = changeCase.paramCase(program.args[0]);
-const themePath = path.join(process.cwd(), themeDirName);
+
 const cloneOptions = {
+	checkoutBranch: 'master',
 	fetchOpts: {
 		callbacks: {
 			// This is a required callback for OS X machines. There is a known issue
 			// with libgit2 being able to verify certificates from GitHub.
-			certificateCheck: function() { return 1; }
+			certificateCheck: function () { return 1; }
 		}
 	}
 };
 
 function walkDirectories(dirPath) {
-    var results = [];
-    var files = fs.readdirSync(dirPath);
-    files.forEach(function(file) {
-        filePath = path.join(dirPath, file);
-        var stat = fs.statSync(filePath);
-        if (stat.isDirectory()) { 
-            results = results.concat(walkDirectories(filePath));
-        } else { 
-            results.push(filePath);
-        }
-    });
-    return results;
+	var results = [];
+	const files = fs.readdirSync(dirPath);
+	files.forEach(function (file) {
+		const filePath = path.join(dirPath, file);
+		const stat = fs.statSync(filePath);
+		if (stat.isDirectory()) {
+			results = results.concat(walkDirectories(filePath));
+		} else {
+			results.push(filePath);
+		}
+	});
+	return results;
 }
 
 function pathExists(path = '') {
 	var exists = true;
 	try {
 		fs.statSync(path);
-	} catch(error) {
+	} catch (error) {
 		exists = false;
 	}
 	return exists;
@@ -191,20 +197,24 @@ function getCommandName() {
 }
 
 function putPackage(args = null) {
-	ncp(tmpThemePath, themePath, function(error) {
+	const themePath = path.join(args.path, themeDirName);
+	if (!pathExists(args.path)) {
+		fs.mkdirSync(args.path);
+	}
+	ncp(tmpThemePath, themePath, function (error) {
 		if (error) {
 			console.error(chalk.bold.redBright('Error:'), error);
 			process.exit();
 		} else {
 			console.info(chalk.bold.yellow('Theme copied:'), themePath);
 			del([tmpPath], { force: true })
-				.then(function(paths) {
+				.then(function (paths) {
 					if (paths.length > 0) {
 						console.info(chalk.bold.yellow('Repo cleaned:'), paths.join(', '));
 					}
 					console.info('\n' + chalk.bold.green('Theme created:'), args.themeName + ' in ' + themePath + '\n');
 					process.exit();
-				}).catch(function(error) {
+				}).catch(function (error) {
 					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
 				});
@@ -215,15 +225,15 @@ function putPackage(args = null) {
 function writeLicense(args = null) {
 	if (args.themeLicense !== 'UNLICENSED') {
 		fetch('https://api.github.com/licenses/' + encodeURIComponent(args.themeLicense.toLowerCase()))
-			.then(function(response) {
+			.then(function (response) {
 				if (response.status === 200) {
 					return response.json();
 				} else {
 					throw new Error(response.json().message);
 				}
-			}).then(function(data) {
+			}).then(function (data) {
 				console.info(chalk.bold.yellow('License fetched:'), data.name);
-				fs.writeFile(tmpThemeLicPath, data.body, function(error) {
+				fs.writeFile(tmpThemeLicPath, data.body, function (error) {
 					if (error) {
 						console.error(chalk.bold.redBright('Error:'), error);
 						process.exit();
@@ -232,12 +242,12 @@ function writeLicense(args = null) {
 						putPackage(args);
 					}
 				});
-			}).catch(function(error) {
+			}).catch(function (error) {
 				console.error(chalk.bold.redBright('Error:'), error);
 				putPackage(args);
 			});
 	} else {
-		fs.writeFile(tmpThemeLicPath, 'UNLICENSED', function(error) {
+		fs.writeFile(tmpThemeLicPath, 'UNLICENSED', function (error) {
 			if (error) {
 				console.error(chalk.bold.redBright('Error:'), error);
 				process.exit();
@@ -253,7 +263,7 @@ function replaceRename(args = null) {
 	const ignoreFiles = [tmpThemePkgLockPath, tmpThemePkgPath, tmpThemeGulpPath];
 	const files = walkDirectories(tmpThemePath);
 	files.forEach(file => {
-		if (! ignoreFiles.includes(file)) {
+		if (!ignoreFiles.includes(file)) {
 			const fileName = path.basename(file);
 			if (/class-wp-theme/g.test(fileName)) {
 				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, 'class-' + changeCase.paramCase(args.classPrefix)));
@@ -272,46 +282,46 @@ function replaceRename(args = null) {
 				console.info(chalk.bold.yellow('File built:'), file);
 			}
 		}
-    });
+	});
 	writeLicense(args);
 }
 
 function writePackage(args = null) {
 	del([tmpThemePkgLockPath], { force: true })
-		.then(function(paths) {
+		.then(function (paths) {
 			if (paths.length > 0) {
 				console.info(chalk.bold.yellow('package-lock.json cleaned:'), paths.join(', '));
 			}
-			fs.readFile(tmpThemePkgPath, function(error, data) {
+			fs.readFile(tmpThemePkgPath, function (error, data) {
 				if (error) {
 					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
 				} else {
-					themePkg = JSON.parse(data);
+					const themePkg = JSON.parse(data);
 					themePkg.name = themeDirName;
 					themePkg.themeName = args.themeName;
 					themePkg.version = args.themeVersion;
 					themePkg.description = args.themeDescription;
-					themePkg.keywords = args.themeTags ? args.themeTags.split(',').map(function(tag) { return tag.trim(); }) : [];
+					themePkg.keywords = args.themeTags ? args.themeTags.split(',').map(function (tag) { return tag.trim(); }) : [];
 					themePkg.author = {
-						name: args.themeAuthor, 
-						email: args.themeAuthorEmail, 
-						url: args.themeAuthorURI, 
+						name: args.themeAuthor,
+						email: args.themeAuthorEmail,
+						url: args.themeAuthorURI,
 					};
 					themePkg.license = args.themeLicense;
 					themePkg.wordpress = {
 						versionRequired: args.wpVersionRequired,
-						versionTested: args.wpVersionTested, 
+						versionTested: args.wpVersionTested,
 					};
 					themePkg.bugs = {
-						url: args.themeBugsURI, 
+						url: args.themeBugsURI,
 					};
 					themePkg.homepage = args.themeURI;
 					themePkg.repository = {
-						type: args.themeRepoType, 
-						url: args.themeRepoURI, 
+						type: args.themeRepoType,
+						url: args.themeRepoURI,
 					};
-					fs.writeFile(tmpThemePkgPath, JSON.stringify(themePkg, null, '\t'), function(error) {
+					fs.writeFile(tmpThemePkgPath, JSON.stringify(themePkg, null, '\t'), function (error) {
 						if (error) {
 							console.error(chalk.bold.redBright('Error:'), error);
 							process.exit();
@@ -322,7 +332,7 @@ function writePackage(args = null) {
 					});
 				}
 			});
-		}).catch(function(error) {
+		}).catch(function (error) {
 			console.error(chalk.bold.redBright('Error:'), error);
 			process.exit();
 		});
@@ -330,44 +340,45 @@ function writePackage(args = null) {
 
 function clonePackage(args = null) {
 	del([tmpPath], { force: true })
-		.then(function(paths) {
+		.then(function (paths) {
 			if (paths.length > 0) {
 				console.info(chalk.bold('Repo cleaned:'), paths.join(', '));
 			}
 			nodegit.Clone(repoPath, tmpPath, cloneOptions)
-				.then(function(repo) {
+				.then(function (_repo) {
 					console.info(chalk.bold.yellow('Repo cloned:'), repoPath + ' --> ' + tmpPath);
 					writePackage(args);
-				}).catch(function(error) {
+				}).catch(function (error) {
 					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
 				});
 		})
-		.catch(function(error) {
+		.catch(function (error) {
 			console.error(chalk.bold.redBright('Error:'), error);
 			process.exit();
 		});
 }
 
-co(function *() {
-	if (pathExists(themePath)) {
-		console.error('\n' + chalk.bold.redBright('Error:'), chalk.bold('Path already exists:'), themePath);
-		process.exit();
-	}
+co(function* () {
 	console.info('\n' + chalk.bold('The following tool will help you configure your new theme.'), '\nFor each setting, set a value and hit "Enter" to continue.\n');
-	var values = defaultArgs;
+	var args = defaultArgs;
 	var options = program.opts();
 	for (var key in defaultArgs) {
 		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + options[key] + ') ');
 		if (promptValue || options[key]) {
-			values[key] = promptValue || options[key];
+			args[key] = promptValue || options[key];
 		}
 	}
-	return values;
-}).then(function(args) {
+	return args;
+}).then(function (args) {
+	const themePath = path.join(args.path, themeDirName);
+	if (pathExists(themePath)) {
+		console.error('\n' + chalk.bold.redBright('Error:'), chalk.bold('Path already exists:'), themePath);
+		process.exit();
+	}
 	console.info('\n' + chalk.bold.green('Creating theme:'), args.themeName + ' in ' + themePath + '\n');
 	clonePackage(args);
-}, function(error) {
+}).catch(function (error) {
 	console.error(chalk.bold.redBright('Error:'), error);
 	process.exit();
 });
