@@ -26,6 +26,7 @@ jobs:
         with:
           name: ${{ env.MODULE_VERSION }}
           tag: ${{ env.MODULE_VERSION }}
+          commit: master
           draft: true
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
