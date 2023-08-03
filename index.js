@@ -150,6 +150,7 @@ const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
 const themeDirName = changeCase.paramCase(program.args[0]);
 
 const cloneOptions = {
+	checkoutBranch: 'master',
 	fetchOpts: {
 		callbacks: {
 			// This is a required callback for OS X machines. There is a known issue
