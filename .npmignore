@@ -2,6 +2,7 @@
 /.github
 /.vscode
 .editorconfig
+.eslintrc
 .gitignore
 .npmignore
 .nvmrc
