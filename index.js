@@ -33,6 +33,7 @@ const defaultArgs = {
 	wpVersionTested: '5.0.0',
 	functionPrefix: 'wp_theme',
 	classPrefix: 'WP_Theme',
+	constantPrefix: 'WP_THEME',
 	path: process.cwd(),
 };
 
@@ -54,6 +55,7 @@ const argTypes = {
 	wpVersionTested: 'string',
 	functionPrefix: 'string',
 	classPrefix: 'string',
+	constantPrefix: 'string',
 	path: 'string',
 };
 
@@ -75,6 +77,7 @@ const argTitles = {
 	wpVersionTested: 'WP Version Tested',
 	functionPrefix: 'Function Prefix',
 	classPrefix: 'Class Prefix',
+	constantPrefix: 'Constant Prefix',
 	path: 'Path',
 };
 
@@ -96,6 +99,7 @@ const argDescriptions = {
 	wpVersionTested: 'The version of WordPress the theme has been tested up to',
 	functionPrefix: 'The prefix for PHP functions',
 	classPrefix: 'The prefix for PHP classes',
+	constantPrefix: 'The prefix for PHP constants',
 	path: 'The path where the built theme directory will be placed.',
 };
 
@@ -117,6 +121,7 @@ const argAliases = {
 	wpVersionTested: 'w',
 	functionPrefix: 'F',
 	classPrefix: 'C',
+	constantPrefix: 'c',
 	path: 'p',
 };
 
@@ -145,6 +150,7 @@ const tmpPath = path.join(__dirname, 'tmp');
 const tmpThemePath = path.join(tmpPath, 'package');
 const tmpThemePkgPath = path.join(tmpThemePath, 'package.json');
 const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
+const tmpThemeComposerLockPath = path.join(tmpThemePath, 'composer.lock');
 const tmpThemeGulpPath = path.join(tmpThemePath, 'gulpfile.js');
 const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
 const themeDirName = changeCase.paramCase(program.args[0]);
@@ -275,6 +281,7 @@ function replaceRename(args = null) {
 			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
 				content = content
 					.replace(/WP Theme/g, args.themeName)
+					.replace(/WP_THEME/g, args.constantPrefix.replace(/[^a-zA-Z\d]/g, '_'))
 					.replace(/WP_Theme/g, args.classPrefix.replace(/[^a-zA-Z\d]/g, '_'))
 					.replace(/wp-theme/g, themeDirName)
 					.replace(/wp_theme/g, changeCase.snakeCase(args.functionPrefix));
@@ -287,10 +294,10 @@ function replaceRename(args = null) {
 }
 
 function writePackage(args = null) {
-	del([tmpThemePkgLockPath], { force: true })
+	del([tmpThemePkgLockPath, tmpThemeComposerLockPath], { force: true })
 		.then(function (paths) {
 			if (paths.length > 0) {
-				console.info(chalk.bold.yellow('package-lock.json cleaned:'), paths.join(', '));
+				console.info(chalk.bold.yellow('Lock files cleaned:'), paths.join(', '));
 			}
 			fs.readFile(tmpThemePkgPath, function (error, data) {
 				if (error) {
