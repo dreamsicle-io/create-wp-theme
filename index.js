@@ -278,7 +278,7 @@ function replaceRename(args = null) {
 				file = newFile;
 			}
 			var content = fs.readFileSync(file, 'utf8');
-			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
+			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /WP_THEME/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
 				content = content
 					.replace(/WP Theme/g, args.themeName)
 					.replace(/WP_THEME/g, args.constantPrefix.replace(/[^a-zA-Z\d]/g, '_'))
