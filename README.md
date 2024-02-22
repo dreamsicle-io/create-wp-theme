@@ -47,6 +47,7 @@ WP Version Required: (5.0.0)
 WP Version Tested: (5.0.0) 
 Function Prefix: (wp_theme) 
 Class Prefix: (WP_Theme) 
+Constant Prefix: (WP_THEME) 
 Path: () 
 ```
 
@@ -58,7 +59,6 @@ The tool will log its progress and errors in the console, exiting on completion 
 Creating theme: WP Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
 
 Repo cloned: https://github.com/dreamsicle-io/wp-theme-assets.git --> C:\Users\noahm\Code\create-wp-theme\tmp
-package-lock.json cleaned: C:\Users\noahm\Code\create-wp-theme\tmp\package\package-lock.json
 package.json written: C:\Users\noahm\Code\create-wp-theme\tmp\package\package.json
 File Renamed: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-wp-theme-assets.php
 File built: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-wp-theme-assets.php
@@ -123,6 +123,7 @@ Options:
                                     "5.0.0")
   -F, --functionPrefix [string]     The prefix for PHP functions (default: "wp_theme")
   -C, --classPrefix [string]        The prefix for PHP classes (default: "WP_Theme")
+	-c, --constantPrefix [string]     The prefix for PHP constants (default: "WP_THEME")
   -p, --path [string]               The path where the built theme directory will be placed. (default:        
                                     "C:\\Users\\noahm\\source\\repos\\create-wp-theme")
   -h, --help                        display help for command
