@@ -106,26 +106,21 @@ Options:
   -X, --themeVersion [string]       The theme version (default: "0.0.1")
   -T, --themeTemplate [string]      The parent theme if this is a child theme (default: "")
   -U, --themeURI [string]           The theme URI (default: "https://github.com/example/wp-theme")
-  -B, --themeBugsURI [string]       The theme bugs URI (default:
-                                    "https://github.com/example/wp-theme/issues")
+  -B, --themeBugsURI [string]       The theme bugs URI (default: "https://github.com/example/wp-theme/issues")
   -R, --themeRepoURI [string]       The theme repository URI (default: "git@github.com:example/wp-theme.git") 
   -r, --themeRepoType [string]      The theme repository type (default: "git")
-  -d, --themeDescription [string]   The theme description (default: "This theme was generated using
-                                    create-wp-theme.")
+  -d, --themeDescription [string]   The theme description (default: "This theme was generated using create-wp-theme.")
   -A, --themeAuthor [string]        The theme author (default: "Example, INC.")
   -E, --themeAuthorEmail [string]   The theme author email (default: "hello@example.com")
   -u, --themeAuthorURI [string]     The theme author URI (default: "https://www.example.com")
   -L, --themeLicense [string]       The theme license as a valid SPDX expression (default: "UNLICENSED")      
-  -t, --themeTags [string]          A CSV of WordPress theme tags (default: "accessibility-ready,
-                                    translation-ready")
+  -t, --themeTags [string]          A CSV of WordPress theme tags (default: "accessibility-ready, translation-ready")
   -W, --wpVersionRequired [string]  The version of WordPress the theme requires (default: "6.0.0")
-  -w, --wpVersionTested [string]    The version of WordPress the theme has been tested up to (default:        
-                                    "6.0.0")
+  -w, --wpVersionTested [string]    The version of WordPress the theme has been tested up to (default: "6.0.0")
   -F, --functionPrefix [string]     The prefix for PHP functions (default: "wp_theme")
   -C, --classPrefix [string]        The prefix for PHP classes (default: "WP_Theme")
   -c, --constantPrefix [string]     The prefix for PHP constants (default: "WP_THEME")
-  -p, --path [string]               The path where the built theme directory will be placed. (default:        
-                                    "C:\\Users\\noahm\\source\\repos\\create-wp-theme")
+  -p, --path [string]               The path where the built theme directory will be placed. (default: "C:\\Users\\noahm\\source\\repos\\create-wp-theme")
   -h, --help                        display help for command
 ```
 
