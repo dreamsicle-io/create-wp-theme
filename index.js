@@ -380,7 +380,7 @@ function clonePackage(args = null) {
 					console.info(chalk.bold.yellow('Repo cloned:'), `${gitURL}@${gitBranch}` + ' --> ' + tmpPath);
 					writePackage(args);
 				}
-			})
+			});
 		})
 		.catch(function (error) {
 			console.error(chalk.bold.redBright('Error:'), error);
