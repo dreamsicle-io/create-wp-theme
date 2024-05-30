@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-'use-strict';
+'use strict';
 
 const path = require('path');
 const fs = require('fs');
@@ -29,8 +29,8 @@ const defaultArgs = {
 	themeAuthorURI: 'https://www.example.com',
 	themeLicense: 'UNLICENSED',
 	themeTags: 'accessibility-ready, translation-ready',
-	wpVersionRequired: '5.0.0',
-	wpVersionTested: '5.0.0',
+	wpVersionRequired: '6.0.0',
+	wpVersionTested: '6.0.0',
 	functionPrefix: 'wp_theme',
 	classPrefix: 'WP_Theme',
 	constantPrefix: 'WP_THEME',
@@ -150,9 +150,19 @@ const tmpPath = path.join(__dirname, 'tmp');
 const tmpThemePath = path.join(tmpPath, 'package');
 const tmpThemePkgPath = path.join(tmpThemePath, 'package.json');
 const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
+const tmpThemeComposerPath = path.join(tmpThemePath, 'composer.json');
 const tmpThemeComposerLockPath = path.join(tmpThemePath, 'composer.lock');
-const tmpThemeGulpPath = path.join(tmpThemePath, 'gulpfile.js');
+const tmpThemeWebpackConfigPath = path.join(tmpThemePath, 'webpack.config.js');
 const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
+const tmpThemeEditorConfigPath = path.join(tmpThemePath, '.editorconfig');
+const tmpThemeEslintConfigPath = path.join(tmpThemePath, '.eslintrc');
+const tmpThemeStylelintPath = path.join(tmpThemePath, '.stylelintrc');
+const tmpThemePrettierIgnorePath = path.join(tmpThemePath, '.prettierignore');
+const tmpThemeGitIgnorePath = path.join(tmpThemePath, '.gitignore');
+const tmpThemeNvmPath = path.join(tmpThemePath, '.nvmrc');
+const tmpThemeVscodeDirPath = path.join(tmpThemePath, '.vscode');
+const tmpThemeGithubDirPath = path.join(tmpThemePath, '.github');
+const tmpThemeLanguagesDirPath = path.join(tmpThemePath, 'languages');
 const themeDirName = changeCase.paramCase(program.args[0]);
 
 const cloneOptions = {
@@ -266,10 +276,30 @@ function writeLicense(args = null) {
 }
 
 function replaceRename(args = null) {
-	const ignoreFiles = [tmpThemePkgLockPath, tmpThemePkgPath, tmpThemeGulpPath];
+	const ignoreDirs = [
+		tmpThemeVscodeDirPath,
+		tmpThemeGithubDirPath,
+		tmpThemeLanguagesDirPath
+	];
+	const ignoreFiles = [
+		tmpThemePkgPath, 
+		tmpThemePkgLockPath, 
+		tmpThemeComposerPath, 
+		tmpThemeComposerLockPath,
+		tmpThemeWebpackConfigPath, 
+		tmpThemeLicPath, 
+		tmpThemeEditorConfigPath, 
+		tmpThemeEslintConfigPath, 
+		tmpThemeStylelintPath, 
+		tmpThemePrettierIgnorePath, 
+		tmpThemeGitIgnorePath, 
+		tmpThemeNvmPath,
+	];
 	const files = walkDirectories(tmpThemePath);
 	files.forEach(file => {
-		if (!ignoreFiles.includes(file)) {
+		const isIgnoredDir = (ignoreDirs.findIndex((dir) => file.startsWith(dir)) !== -1);
+		const isIgnoredFile = ignoreFiles.includes(file);
+		if (! isIgnoredDir && ! isIgnoredFile) {
 			const fileName = path.basename(file);
 			if (/class-wp-theme/g.test(fileName)) {
 				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, 'class-' + changeCase.paramCase(args.classPrefix)));
