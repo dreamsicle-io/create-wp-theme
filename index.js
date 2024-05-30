@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 
+const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const co = require('co');
 const prompt = require('co-prompt');
-const nodegit = require('nodegit');
 const del = require('del');
 const ncp = require('ncp').ncp;
 const fetch = require('node-fetch');
@@ -145,7 +145,9 @@ for (var key in defaultArgs) {
 
 program.parse(process.argv);
 
-const repoPath = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
+const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
+const gitBranch = 'master';
+
 const tmpPath = path.join(__dirname, 'tmp');
 const tmpThemePath = path.join(tmpPath, 'package');
 const tmpThemePkgPath = path.join(tmpThemePath, 'package.json');
@@ -164,17 +166,6 @@ const tmpThemeVscodeDirPath = path.join(tmpThemePath, '.vscode');
 const tmpThemeGithubDirPath = path.join(tmpThemePath, '.github');
 const tmpThemeLanguagesDirPath = path.join(tmpThemePath, 'languages');
 const themeDirName = changeCase.paramCase(program.args[0]);
-
-const cloneOptions = {
-	checkoutBranch: 'master',
-	fetchOpts: {
-		callbacks: {
-			// This is a required callback for OS X machines. There is a known issue
-			// with libgit2 being able to verify certificates from GitHub.
-			certificateCheck: function () { return 1; }
-		}
-	}
-};
 
 function walkDirectories(dirPath) {
 	var results = [];
@@ -381,14 +372,15 @@ function clonePackage(args = null) {
 			if (paths.length > 0) {
 				console.info(chalk.bold('Repo cleaned:'), paths.join(', '));
 			}
-			nodegit.Clone(repoPath, tmpPath, cloneOptions)
-				.then(function (_repo) {
-					console.info(chalk.bold.yellow('Repo cloned:'), repoPath + ' --> ' + tmpPath);
-					writePackage(args);
-				}).catch(function (error) {
+			exec(`git clone -b ${gitBranch} ${gitURL} ${tmpPath}`, (error) => {
+				if (error) {
 					console.error(chalk.bold.redBright('Error:'), error);
 					process.exit();
-				});
+				} else {
+					console.info(chalk.bold.yellow('Repo cloned:'), `${gitURL}@${gitBranch}` + ' --> ' + tmpPath);
+					writePackage(args);
+				}
+			})
 		})
 		.catch(function (error) {
 			console.error(chalk.bold.redBright('Error:'), error);

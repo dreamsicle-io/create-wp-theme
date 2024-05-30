@@ -118,12 +118,12 @@ Options:
   -L, --themeLicense [string]       The theme license as a valid SPDX expression (default: "UNLICENSED")      
   -t, --themeTags [string]          A CSV of WordPress theme tags (default: "accessibility-ready,
                                     translation-ready")
-  -W, --wpVersionRequired [string]  The version of WordPress the theme requires (default: "5.0.0")
+  -W, --wpVersionRequired [string]  The version of WordPress the theme requires (default: "6.0.0")
   -w, --wpVersionTested [string]    The version of WordPress the theme has been tested up to (default:        
-                                    "5.0.0")
+                                    "6.0.0")
   -F, --functionPrefix [string]     The prefix for PHP functions (default: "wp_theme")
   -C, --classPrefix [string]        The prefix for PHP classes (default: "WP_Theme")
-	-c, --constantPrefix [string]     The prefix for PHP constants (default: "WP_THEME")
+  -c, --constantPrefix [string]     The prefix for PHP constants (default: "WP_THEME")
   -p, --path [string]               The path where the built theme directory will be placed. (default:        
                                     "C:\\Users\\noahm\\source\\repos\\create-wp-theme")
   -h, --help                        display help for command
