@@ -1,8 +1,11 @@
 # Deps
+
 /node_modules
 
 # Temp files
+
 /tmp
 
 # Tests
+
 /tests
