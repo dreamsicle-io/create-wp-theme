@@ -10,11 +10,11 @@
 		"sourceType": "module"
 	},
 	"ignorePatterns": [
-		"/.github/",
-		"/.vscode/",
-		"/node_modules/",
-		"/tests/",
-		"/tmp/",
+		".github/**/*",
+		".vscode/**/*",
+		"node_modules/**/*",
+		"tests/**/*",
+		"tmp/**/*",
 		".editorconfig",
 		".gitignore",
 		".npmignore",
@@ -23,7 +23,20 @@
 		"README.md"
 	],
 	"rules": {
-		"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+		"indent": ["error", "tab"],
+		"eol-last": ["error", "always"],
+		"no-unused-vars": [
+			"error", 
+			{
+				"argsIgnorePattern": "^_"
+			}
+		],
+		"no-console": [
+			"error",
+			{
+				"allow": ["info", "warn", "error"]
+			}
+		]
 	}
 }
   

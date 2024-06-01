@@ -165,6 +165,7 @@ const tmpThemeNvmPath = path.join(tmpThemePath, '.nvmrc');
 const tmpThemeVscodeDirPath = path.join(tmpThemePath, '.vscode');
 const tmpThemeGithubDirPath = path.join(tmpThemePath, '.github');
 const tmpThemeLanguagesDirPath = path.join(tmpThemePath, 'languages');
+const tmpThemeReadmePath = path.join(tmpThemePath, 'README.md');
 const themeDirName = changeCase.paramCase(program.args[0]);
 
 function walkDirectories(dirPath) {
@@ -270,7 +271,7 @@ function replaceRename(args = null) {
 	const ignoreDirs = [
 		tmpThemeVscodeDirPath,
 		tmpThemeGithubDirPath,
-		tmpThemeLanguagesDirPath
+		tmpThemeLanguagesDirPath,
 	];
 	const ignoreFiles = [
 		tmpThemePkgPath, 
@@ -285,6 +286,7 @@ function replaceRename(args = null) {
 		tmpThemePrettierIgnorePath, 
 		tmpThemeGitIgnorePath, 
 		tmpThemeNvmPath,
+		tmpThemeReadmePath,
 	];
 	const files = walkDirectories(tmpThemePath);
 	files.forEach(file => {
@@ -380,7 +382,7 @@ function clonePackage(args = null) {
 					console.info(chalk.bold.yellow('Repo cloned:'), `${gitURL}@${gitBranch}` + ' --> ' + tmpPath);
 					writePackage(args);
 				}
-			})
+			});
 		})
 		.catch(function (error) {
 			console.error(chalk.bold.redBright('Error:'), error);
