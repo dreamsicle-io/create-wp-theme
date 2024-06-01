@@ -10,11 +10,11 @@
 		"sourceType": "module"
 	},
 	"ignorePatterns": [
-		"/.github/",
-		"/.vscode/",
-		"/node_modules/",
-		"/tests/",
-		"/tmp/",
+		".github/**/*",
+		".vscode/**/*",
+		"node_modules/**/*",
+		"tests/**/*",
+		"tmp/**/*",
 		".editorconfig",
 		".gitignore",
 		".npmignore",
