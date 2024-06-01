@@ -9,7 +9,10 @@
 	"scripts": {
 		"lint": "eslint .",
 		"fix": "eslint --fix .",
-		"test": "node index.js -p tests"
+		"test": "node index.js -p tests",
+		"clean-tests": "rm -rf tests/**",
+		"clean-deps": "rm -rf node_modules/ package-lock.json",
+		"clean": "npm run clean-deps && npm run clean-tests"
 	},
 	"repository": {
 		"type": "git",
