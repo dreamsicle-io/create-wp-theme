@@ -1,19 +1,67 @@
 #!/usr/bin/env node
+// @ts-check
 'use strict';
 
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const co = require('co');
 const prompt = require('co-prompt');
-const del = require('del');
-const ncp = require('ncp').ncp;
-const fetch = require('node-fetch');
 const changeCase = require('change-case');
 const chalk = require('chalk');
 const pkg = require('./package.json');
 const Command = require('commander').Command;
 const program = new Command();
+
+/**
+ * @typedef {object} Args
+ * @property {string} themeName
+ * @property {string} themeVersion
+ * @property {string} themeTemplate
+ * @property {string} themeURI
+ * @property {string} themeBugsURI
+ * @property {string} themeRepoURI
+ * @property {string} themeRepoType
+ * @property {string} themeDescription
+ * @property {string} themeAuthor
+ * @property {string} themeAuthorEmail
+ * @property {string} themeAuthorURI
+ * @property {string} themeLicense
+ * @property {string} themeTags
+ * @property {string} wpVersionRequired
+ * @property {string} wpVersionTested
+ * @property {string} functionPrefix
+ * @property {string} classPrefix
+ * @property {string} constantPrefix
+ * @property {string} path
+ */
+
+/**
+ * @typedef {object} LogMessage
+ * @property {string} title
+ * @property {string} [emoji]
+ * @property {string} [description]
+ * @property {any} [dataLabel]
+ * @property {any} [data]
+ * @property {'top' | 'bottom' | 'both'} [padding]
+ */
+
+/**
+ * @typedef {object} GitHubLicense
+ * @property {string} key
+ * @property {string} name
+ * @property {string} spdx_id
+ * @property {string} url
+ * @property {string} node_id
+ * @property {string} html_url
+ * @property {string} description
+ * @property {string} implementation
+ * @property {string[]} permissions
+ * @property {string[]} conditions
+ * @property {string[]} limitations
+ * @property {string} body
+ * @property {boolean} featured
+ */
 
 const defaultArgs = {
 	themeName: 'WP Theme',
@@ -129,7 +177,7 @@ const requiredArgs = [
 	'themeName',
 ];
 
-program.name(getCommandName());
+program.name('Create WP Theme');
 program.version(pkg.version);
 program.arguments('<file>');
 
@@ -151,9 +199,7 @@ const gitBranch = 'master';
 const tmpPath = path.join(__dirname, 'tmp');
 const tmpThemePath = path.join(tmpPath, 'package');
 const tmpThemePkgPath = path.join(tmpThemePath, 'package.json');
-const tmpThemePkgLockPath = path.join(tmpThemePath, 'package-lock.json');
 const tmpThemeComposerPath = path.join(tmpThemePath, 'composer.json');
-const tmpThemeComposerLockPath = path.join(tmpThemePath, 'composer.lock');
 const tmpThemeWebpackConfigPath = path.join(tmpThemePath, 'webpack.config.js');
 const tmpThemeLicPath = path.join(tmpThemePath, 'LICENSE');
 const tmpThemeEditorConfigPath = path.join(tmpThemePath, '.editorconfig');
@@ -168,10 +214,51 @@ const tmpThemeLanguagesDirPath = path.join(tmpThemePath, 'languages');
 const tmpThemeReadmePath = path.join(tmpThemePath, 'README.md');
 const themeDirName = changeCase.paramCase(program.args[0]);
 
+/**
+ * 
+ * @param {LogMessage} message 
+ */
+function logInfo(message) {
+	let { title, description, emoji, data, dataLabel, padding } = message;
+	/** 
+	 * Construct the text.
+	 * @type {string}
+	 */
+	let text = chalk.bold.green(title);
+	if (description) text += ` ${description}`;
+	if (emoji) text = `${emoji} ${text}`;
+	// Add padding.
+	if ((padding === 'top') || (padding === 'both')) text = `\n${text}`;
+	if (((padding === 'bottom') || (padding === 'both')) && ! data) text = `${text}\n`;
+	/** 
+	 * Construct the params array.
+	 * @type {any[]}
+	 */
+	let params = [text];
+	// Construct the data.
+	if (data) params.push(...[`\n\n💡 ${chalk.bold.cyan(dataLabel || 'Data')} →`, data, '\n']);
+	console.info(...params);
+}
+
+/**
+ * @param {Error} error 
+ */
+function logError(error) {
+	console.error(chalk.bold.redBright(`\n\n❌ Error: ${error.message}\n\n`), error, '\n\n');
+}
+
+/**
+ * @param {string} dirPath 
+ * @returns {string[]}
+ */
 function walkDirectories(dirPath) {
-	var results = [];
+	/**
+	 * Initialize the results array.
+	 * @type {string[]}
+	 */
+	let results = [];
 	const files = fs.readdirSync(dirPath);
-	files.forEach(function (file) {
+	files.forEach((file) => {
 		const filePath = path.join(dirPath, file);
 		const stat = fs.statSync(filePath);
 		if (stat.isDirectory()) {
@@ -183,91 +270,123 @@ function walkDirectories(dirPath) {
 	return results;
 }
 
-function pathExists(path = '') {
-	var exists = true;
-	try {
-		fs.statSync(path);
-	} catch (error) {
-		exists = false;
-	}
-	return exists;
-}
-
-function getCommandName() {
-	var cmd = pkg.name;
-	if (pkg.bin) {
-		for (var key in pkg.bin) {
-			cmd = key;
-			break;
+/**
+ * @param {string} type 
+ * @param {Buffer} stdout 
+ * @returns {string}
+ */
+function formatStdoutMessage(type, stdout) {
+	switch (type) {
+		case 'git-commit': {
+			const response = stdout.toString();
+			const lines = response.split('\n').map((message) => message.trim());
+			const commitMessage = lines[0]?.match(/(\[.*\])/)?.[0] || 'Unknown commit';
+			const filesMessage = lines[1] || 'Unknown commit stats';
+			return [commitMessage, filesMessage].join(' ― ');
+		}
+		default: {
+			throw new Error(`Unsupported stdout type: "${type}"`);
 		}
 	}
-	return cmd;
 }
 
-function putPackage(args = null) {
-	const themePath = path.join(args.path, themeDirName);
-	if (!pathExists(args.path)) {
-		fs.mkdirSync(args.path);
-	}
-	ncp(tmpThemePath, themePath, function (error) {
-		if (error) {
-			console.error(chalk.bold.redBright('Error:'), error);
-			process.exit();
-		} else {
-			console.info(chalk.bold.yellow('Theme copied:'), themePath);
-			del([tmpPath], { force: true })
-				.then(function (paths) {
-					if (paths.length > 0) {
-						console.info(chalk.bold.yellow('Repo cleaned:'), paths.join(', '));
-					}
-					console.info('\n' + chalk.bold.green('Theme created:'), args.themeName + ' in ' + themePath + '\n');
-					process.exit();
-				}).catch(function (error) {
-					console.error(chalk.bold.redBright('Error:'), error);
-					process.exit();
-				});
+/**
+ * @returns {Promise<Args>}
+ */
+async function processArgs() {
+	logInfo({
+		title: 'The following tool will help you configure your new theme.',
+		description: 'For each setting, set a value and hit "Enter" to continue.',
+		emoji: '⚡',
+		padding: 'bottom',
+	});
+	return await co(function* () {
+		/**
+		 * Clone the initial program options into args.
+		 * @type {Args}
+		 */
+		const args = { ...program.opts() };
+		for (var key in args) {
+			// If the arg matches its default, we can safely assume it was
+			// not passed from the CLI, and we should prompt for it.
+			if (args[key] === defaultArgs[key]) {
+				/**
+				 * If there is a prompt value for this option, set it. If not, use the program option.
+				 * @type {string}
+				 */
+				const promptValue = yield prompt(chalk.bold.blueBright(argTitles[key] + ': ') + '(' + args[key] + ') ');
+				if (promptValue) args[key] = promptValue;
+			}
 		}
+		logInfo({
+			title: 'Got it!',
+			description: `Creating ${args.themeName}...`,
+			emoji: '👍',
+			padding: 'both',
+			dataLabel: 'Arguments',
+			data: args,
+		});
+		return args;
 	});
 }
 
-function writeLicense(args = null) {
-	if (args.themeLicense !== 'UNLICENSED') {
-		fetch('https://api.github.com/licenses/' + encodeURIComponent(args.themeLicense.toLowerCase()))
-			.then(function (response) {
-				if (response.status === 200) {
-					return response.json();
-				} else {
-					throw new Error(response.json().message);
-				}
-			}).then(function (data) {
-				console.info(chalk.bold.yellow('License fetched:'), data.name);
-				fs.writeFile(tmpThemeLicPath, data.body, function (error) {
-					if (error) {
-						console.error(chalk.bold.redBright('Error:'), error);
-						process.exit();
-					} else {
-						console.info(chalk.bold.yellow('License written:'), tmpThemeLicPath);
-						putPackage(args);
-					}
-				});
-			}).catch(function (error) {
-				console.error(chalk.bold.redBright('Error:'), error);
-				putPackage(args);
-			});
-	} else {
-		fs.writeFile(tmpThemeLicPath, 'UNLICENSED', function (error) {
-			if (error) {
-				console.error(chalk.bold.redBright('Error:'), error);
-				process.exit();
-			} else {
-				console.info(chalk.bold.yellow('License written:'), tmpThemeLicPath);
-				putPackage(args);
-			}
-		});
-	}
+function clonePackage() {
+	// Clean out the tmp directory.
+	fs.rmSync(tmpPath, { recursive: true, force: true });
+	// Clone the repo into the tmp directory.
+	execSync(`git clone -b ${gitBranch} ${gitURL} ${tmpPath}`, { stdio: 'pipe' });
+	logInfo({
+		title: 'Repo cloned',
+		description: `${gitURL} (${gitBranch})`,
+		emoji: '📥',
+	});
 }
 
-function replaceRename(args = null) {
+/**
+ * @param {Args} args 
+ */
+function writePackage(args) {
+	// Read the package.json file and parse the contents as JSON.
+	const contents = fs.readFileSync(tmpThemePkgPath, 'utf8');
+	const data = JSON.parse(contents);
+	// Configure the data.
+	data.name = themeDirName;
+	data.themeName = args.themeName;
+	data.version = args.themeVersion;
+	data.description = args.themeDescription;
+	data.keywords = args.themeTags ? args.themeTags.split(',').map(function (tag) { return tag.trim(); }) : [];
+	data.author = {
+		name: args.themeAuthor,
+		email: args.themeAuthorEmail,
+		url: args.themeAuthorURI,
+	};
+	data.license = args.themeLicense;
+	data.wordpress = {
+		versionRequired: args.wpVersionRequired,
+		versionTested: args.wpVersionTested,
+	};
+	data.bugs = {
+		url: args.themeBugsURI,
+	};
+	data.homepage = args.themeURI;
+	data.repository = {
+		type: args.themeRepoType,
+		url: args.themeRepoURI,
+	};
+	// Stringify the data and write it back to the package.json file.
+	const newContents = JSON.stringify(data, null, '\t');
+	fs.writeFileSync(tmpThemePkgPath, newContents, { encoding: 'utf8' });
+	logInfo({
+		title: 'Package written',
+		description: tmpThemePkgPath.replace(tmpThemePath, ''),
+		emoji: '🔨',
+	});
+}
+
+/**
+ * @param {Args} args 
+ */
+function replaceRename(args) {
 	const ignoreDirs = [
 		tmpThemeVscodeDirPath,
 		tmpThemeGithubDirPath,
@@ -275,9 +394,7 @@ function replaceRename(args = null) {
 	];
 	const ignoreFiles = [
 		tmpThemePkgPath, 
-		tmpThemePkgLockPath, 
 		tmpThemeComposerPath, 
-		tmpThemeComposerLockPath,
 		tmpThemeWebpackConfigPath, 
 		tmpThemeLicPath, 
 		tmpThemeEditorConfigPath, 
@@ -288,128 +405,209 @@ function replaceRename(args = null) {
 		tmpThemeNvmPath,
 		tmpThemeReadmePath,
 	];
+	// Walk all directories and collect file paths.
 	const files = walkDirectories(tmpThemePath);
+	// Loop over each file path.
 	files.forEach(file => {
+		// Determine if the file should be ignored.
 		const isIgnoredDir = (ignoreDirs.findIndex((dir) => file.startsWith(dir)) !== -1);
 		const isIgnoredFile = ignoreFiles.includes(file);
 		if (! isIgnoredDir && ! isIgnoredFile) {
+			// Get the file name from the path.
 			const fileName = path.basename(file);
+			// If the file is a class file, rename the file.
 			if (/class-wp-theme/g.test(fileName)) {
 				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, 'class-' + changeCase.paramCase(args.classPrefix)));
 				fs.renameSync(file, newFile);
-				console.info(chalk.bold.yellow('File Renamed:'), newFile);
+				logInfo({
+					title: 'File renamed',
+					description: newFile.replace(tmpThemePath, ''),
+					emoji: '🔨',
+				});
 				file = newFile;
 			}
-			var content = fs.readFileSync(file, 'utf8');
+			// Read the content of the file and test it to see if it needs replacements.
+			let content = fs.readFileSync(file, 'utf8');
 			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /WP_THEME/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
+				// Run all replacemnets.
 				content = content
 					.replace(/WP Theme/g, args.themeName)
 					.replace(/WP_THEME/g, args.constantPrefix.replace(/[^a-zA-Z\d]/g, '_'))
 					.replace(/WP_Theme/g, args.classPrefix.replace(/[^a-zA-Z\d]/g, '_'))
 					.replace(/wp-theme/g, themeDirName)
 					.replace(/wp_theme/g, changeCase.snakeCase(args.functionPrefix));
+				// Write the file contents back in place.
 				fs.writeFileSync(file, content);
-				console.info(chalk.bold.yellow('File built:'), file);
+				logInfo({
+					title: 'File built',
+					description: file.replace(tmpThemePath, ''),
+					emoji: '🔨',
+				});
 			}
 		}
 	});
-	writeLicense(args);
 }
 
-function writePackage(args = null) {
-	del([tmpThemePkgLockPath, tmpThemeComposerLockPath], { force: true })
-		.then(function (paths) {
-			if (paths.length > 0) {
-				console.info(chalk.bold.yellow('Lock files cleaned:'), paths.join(', '));
-			}
-			fs.readFile(tmpThemePkgPath, function (error, data) {
-				if (error) {
-					console.error(chalk.bold.redBright('Error:'), error);
-					process.exit();
-				} else {
-					const themePkg = JSON.parse(data);
-					themePkg.name = themeDirName;
-					themePkg.themeName = args.themeName;
-					themePkg.version = args.themeVersion;
-					themePkg.description = args.themeDescription;
-					themePkg.keywords = args.themeTags ? args.themeTags.split(',').map(function (tag) { return tag.trim(); }) : [];
-					themePkg.author = {
-						name: args.themeAuthor,
-						email: args.themeAuthorEmail,
-						url: args.themeAuthorURI,
-					};
-					themePkg.license = args.themeLicense;
-					themePkg.wordpress = {
-						versionRequired: args.wpVersionRequired,
-						versionTested: args.wpVersionTested,
-					};
-					themePkg.bugs = {
-						url: args.themeBugsURI,
-					};
-					themePkg.homepage = args.themeURI;
-					themePkg.repository = {
-						type: args.themeRepoType,
-						url: args.themeRepoURI,
-					};
-					fs.writeFile(tmpThemePkgPath, JSON.stringify(themePkg, null, '\t'), function (error) {
-						if (error) {
-							console.error(chalk.bold.redBright('Error:'), error);
-							process.exit();
-						} else {
-							console.info(chalk.bold.yellow('package.json written:'), tmpThemePkgPath);
-							replaceRename(args);
-						}
-					});
-				}
-			});
-		}).catch(function (error) {
-			console.error(chalk.bold.redBright('Error:'), error);
-			process.exit();
-		});
-}
-
-function clonePackage(args = null) {
-	del([tmpPath], { force: true })
-		.then(function (paths) {
-			if (paths.length > 0) {
-				console.info(chalk.bold('Repo cleaned:'), paths.join(', '));
-			}
-			exec(`git clone -b ${gitBranch} ${gitURL} ${tmpPath}`, (error) => {
-				if (error) {
-					console.error(chalk.bold.redBright('Error:'), error);
-					process.exit();
-				} else {
-					console.info(chalk.bold.yellow('Repo cloned:'), `${gitURL}@${gitBranch}` + ' --> ' + tmpPath);
-					writePackage(args);
-				}
-			});
-		})
-		.catch(function (error) {
-			console.error(chalk.bold.redBright('Error:'), error);
-			process.exit();
-		});
-}
-
-co(function* () {
-	console.info('\n' + chalk.bold('The following tool will help you configure your new theme.'), '\nFor each setting, set a value and hit "Enter" to continue.\n');
-	var args = defaultArgs;
-	var options = program.opts();
-	for (var key in defaultArgs) {
-		const promptValue = yield prompt(chalk.bold(argTitles[key] + ': ') + '(' + options[key] + ') ');
-		if (promptValue || options[key]) {
-			args[key] = promptValue || options[key];
+/**
+ * @param {string} slug 
+ * @returns {Promise<GitHubLicense>}
+ */
+async function fetchLicense(slug) {
+	const formattedSlug = encodeURIComponent(slug.toLowerCase());
+	const response = await fetch(`https://api.github.com/licenses/${formattedSlug}`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	});
+	switch (response.status) {
+		case 200: {
+			return response.json();
+		}
+		default: {
+			throw new Error(`Couldn't fetch license from GitHub for "${formattedSlug}"`);
 		}
 	}
-	return args;
-}).then(function (args) {
-	const themePath = path.join(args.path, themeDirName);
-	if (pathExists(themePath)) {
-		console.error('\n' + chalk.bold.redBright('Error:'), chalk.bold('Path already exists:'), themePath);
+}
+
+/**
+ * @param {Args} args 
+ */
+async function writeLicense(args) {
+	if (args.themeLicense === 'UNLICENSED') {
+		fs.writeFileSync(tmpThemeLicPath, 'UNLICENSED', { encoding: 'utf8' });
+	} else {
+		const license = await fetchLicense(args.themeLicense);
+		logInfo({
+			title: 'License fetched',
+			description: license.name,
+			emoji: '📥',
+		});
+		fs.writeFileSync(tmpThemeLicPath, license.body, { encoding: 'utf8' });
+	}
+	logInfo({
+		title: 'License written',
+		description: tmpThemeLicPath.replace(tmpThemePath, ''),
+		emoji: '📄',
+	});
+}
+
+/**
+ * @param {Args} args 
+ */
+function putPackage(args) {
+	// Prepare the final theme path.
+	const themePath = path.resolve(args.path, themeDirName);
+	// Check if the directory exists already and throw an error if not to avoid
+	// accidnetally removing important data on the machine.
+	if (fs.existsSync(themePath)) throw new Error(`There is already a directory at "${themePath}"`);
+	// Copy the final build from the tmp directory to the real directory and clean the tmp directory.
+	fs.cpSync(tmpThemePath, themePath, { recursive: true, force: true });
+	fs.rmSync(tmpPath, { recursive: true, force: true });
+	logInfo({
+		title: 'Theme copied',
+		description: themePath,
+		emoji: '🚀',
+	});
+}
+
+/**
+ * @param {Args} args 
+ */
+function initRepo(args) {
+	const cwdCache = process.cwd();
+	const themePath = path.resolve(args.path, themeDirName);
+	try {
+		// Switch on the repo type and initialize a git repo with
+		// remote origin based on repo type.
+		switch (args.themeRepoType) {
+			case 'git': {
+				process.chdir(themePath);
+				// Initialize repository.
+				execSync(`git init -b main`, { stdio: 'pipe' });
+				logInfo({
+					title: 'Repo initialized',
+					description: `Repo type: "${args.themeRepoType}"`,
+					emoji: '📁',
+				});
+				// Add remote origin.
+				execSync(`git remote add origin ${args.themeRepoURI}`, { stdio: 'pipe' });
+				logInfo({
+					title: 'Remote repo added',
+					description: args.themeRepoURI,
+					emoji: '🔗',
+				});
+				// Add and commit all files.
+				const stdoutCommit = execSync('git add . && git commit -m "Initial commit ― Theme scaffolded with @dreamsicle.io/create-wp-theme."', { stdio: 'pipe' });
+				const stdoutCommitMessage = formatStdoutMessage('git-commit', stdoutCommit);
+				logInfo({
+					title: 'Initial files committed',
+					description: stdoutCommitMessage,
+					emoji: '💾',
+				});
+				break;
+			}
+			default: {
+				logInfo({
+					title: 'Skipping repo initialization',
+					description: `Unsupported repo type: "${args.themeRepoType}"`,
+					emoji: '❕',
+				});
+				break;
+			}
+		}
+	} catch(error) {
+		// We don't want Git errors to exit the process, so don't throw.
+		// Instead, catch them and log them so the user is aware, while
+		// allowing the process to continue.
+		logError(error);
+	} finally {
+		// Return to the cached CWD.
+		if (cwdCache !== process.cwd()) process.chdir(cwdCache);
+	}
+}
+
+/**
+ * @param {Args} args 
+ */
+function logSuccess(args) {
+	// Prepare the final theme path.
+	const themePath = path.resolve(args.path, themeDirName);
+	const themePathRel = path.relative(process.cwd(), themePath);
+	// Log information to the console.
+	logInfo({
+		title: `${args.themeName} created successfully`,
+		description: themePathRel,
+		emoji: '⚡',
+		padding: 'both',
+	});
+	logInfo({
+		title: 'What\'s next?',
+		description: `Head over to the "${themeDirName}" directory to install dependencies and get started.`,
+		emoji: '⚡',
+		padding: 'bottom',
+	});
+	logInfo({ title: '>', description: `cd ${themePathRel}` });
+	logInfo({ title: '>', description: 'nvm use' });
+	logInfo({ title: '>', description: 'npm install' });
+	logInfo({ title: '>', description: 'npm start' });
+}
+
+async function run() {
+	try {
+		const args = await processArgs();
+		clonePackage();
+		writePackage(args);
+		replaceRename(args);
+		await writeLicense(args);
+		putPackage(args);
+		initRepo(args);
+		logSuccess(args);
+	} catch(error) {
+		logError(error);
+	} finally {
 		process.exit();
 	}
-	console.info('\n' + chalk.bold.green('Creating theme:'), args.themeName + ' in ' + themePath + '\n');
-	clonePackage(args);
-}).catch(function (error) {
-	console.error(chalk.bold.redBright('Error:'), error);
-	process.exit();
-});
+}
+
+run();
