@@ -32,10 +32,7 @@
 		"change-case": "~4.1.2",
 		"co": "~4.6.0",
 		"co-prompt": "~1.0.0",
-		"commander": "~8.2.0",
-		"del": "~6.0.0",
-		"ncp": "~2.0.0",
-		"node-fetch": "~2.6.2"
+		"commander": "~8.2.0"
 	},
 	"devDependencies": {
 		"eslint": "~8.46.0"
