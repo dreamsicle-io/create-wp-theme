@@ -1,10 +1,40 @@
 {
 	"name": "@dreamsicle.io/create-wp-theme",
 	"version": "2.0.1",
+	"type": "module",
 	"description": "A command line tool for creating modern, optimized WordPress themes.",
 	"main": "index.js",
+	"license": "GPL-3.0",
 	"bin": {
 		"create-wp-theme": "index.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:dreamsicle-io/create-wp-theme.git"
+	},
+	"homepage": "https://github.com/dreamsicle-io/create-wp-theme#readme",
+	"bugs": {
+		"url": "https://github.com/dreamsicle-io/create-wp-theme/issues"
+	},
+	"author": {
+		"name": "Dreamsicle",
+		"email": "hello@dreamsicle.io",
+		"url": "https://www.dreamsicle.com"
+	},
+	"keywords": [
+		"wordpress"
+	],
+	"dependencies": {
+		"chalk": "~4.1.2",
+		"change-case": "^5.4.4",
+		"co": "~4.6.0",
+		"co-prompt": "~1.0.0",
+		"commander": "~8.2.0",
+		"semver": "~7.6.2",
+		"zod": "~3.23.8"
+	},
+	"devDependencies": {
+		"eslint": "~8.46.0"
 	},
 	"scripts": {
 		"lint": "eslint .",
@@ -13,28 +43,5 @@
 		"clean-tests": "rm -rf tests/**",
 		"clean-deps": "rm -rf node_modules/ package-lock.json",
 		"clean": "npm run clean-deps && npm run clean-tests"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git@github.com:dreamsicle-io/create-wp-theme.git"
-	},
-	"keywords": [
-		"wordpress"
-	],
-	"author": "Dreamsicle",
-	"license": "GPL-3.0",
-	"bugs": {
-		"url": "https://github.com/dreamsicle-io/create-wp-theme/issues"
-	},
-	"homepage": "https://github.com/dreamsicle-io/create-wp-theme#readme",
-	"dependencies": {
-		"chalk": "~4.1.2",
-		"change-case": "~4.1.2",
-		"co": "~4.6.0",
-		"co-prompt": "~1.0.0",
-		"commander": "~8.2.0"
-	},
-	"devDependencies": {
-		"eslint": "~8.46.0"
 	}
 }
