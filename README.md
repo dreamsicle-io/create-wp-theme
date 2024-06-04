@@ -26,7 +26,7 @@ npx @dreamsicle.io/create-wp-theme my-theme
 
 Once the command has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. 
 
-```shell
+```console
 ⚡ Let's get started ― This tool will guide you through configuring your theme.
 For each prompt, set a value and hit "ENTER" to continue. To exit early, hit
 "CMD+C" on Mac, or "CTRL+C" on Windows. For help, run "create-wp-theme -h" to
@@ -57,7 +57,7 @@ Constant Prefix: (WP_THEME)
 
 The tool will log its progress and errors in the console, exiting on completion and fatal errors.
 
-```shell
+```console
 👍 Got it! ― Creating "WP Theme" in tests\wp-theme
 
 📥 Cloning package ― https://github.com/dreamsicle-io/wp-theme-assets.git (master)
@@ -87,7 +87,7 @@ placeholders that may be in the text. Now, go build something beautiful.
 
 ## Options
 
-The tool offers several options that will serve as defaults for the tool's prompt. These options can be used to customize the default options of the tool allowing the developer to go through the prompts faster. Options provided via the CLI will not be prompted for in the terminal.
+The tool offers several options that will serve as defaults for the tool's prompt. These options can be used to customize the default options of the tool allowing the developer to go through the prompts faster. Options provided via the CLI will not be prompted for in the terminal. To see a list of all available options and their aliases, jump to the [Help](#help) section.
 
 ```shell 
 npx @dreamsicle.io/create-wp-theme -A Dreamsicle -E hello@dreamsicle.com -u https://www.dreamsicle.com my-theme
@@ -95,12 +95,16 @@ npx @dreamsicle.io/create-wp-theme -A Dreamsicle -E hello@dreamsicle.com -u http
 
 > **Note:** If the option value has spaces in it, wrap it in quotes. For example - `"Example, INC."`.
 
-**The above would set the defaults for the following prompts:**
+**The above would set the following options:**
 
-```shell
-Author: (Dreamsicle) 
-Author Email: (hello@dreamsicle.com) 
-Author URI: (https://www.dreamsicle.com)  
+```javascript
+{
+	...
+	themeAuthor: 'Dreamsicle',
+	themeAuthorEmail: 'hello@dreamsicle.com',
+	themeAuthorURI: 'https://www.dreamsicle.com',
+	...
+}
 ```
 
 ## Help 
@@ -113,7 +117,7 @@ npx @dreamsicle.io/create-wp-theme --help
 
 **The above would ouput the following help information:**
 
-```shell
+```console
 Usage: create-wp-theme [options] <dir>
 
 A command line tool for creating modern, optimized WordPress themes.
