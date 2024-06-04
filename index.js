@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 // @ts-check
-'use strict';
 
-const pkg = require('./package.json');
-const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-const co = require('co');
-const prompt = require('co-prompt');
-const changeCase = require('change-case');
-const chalk = require('chalk');
-const { Command } = require('commander');
-const program = new Command();
+import { execSync } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { constantCase, kebabCase, pascalSnakeCase, snakeCase } from 'change-case';
+import semver from 'semver';
+import zod from 'zod';
+import chalk from 'chalk';
+import co from 'co';
+import prompt from 'co-prompt';
+import { Command } from 'commander';
 
 /**
- * @typedef {object} Args
+ * @typedef {object} Options
  * @property {string} themeName
  * @property {string} themeVersion
  * @property {string} [themeTemplate]
@@ -37,14 +37,6 @@ const program = new Command();
  */
 
 /**
- * @typedef {object} ArgDef
- * @property {string} key
- * @property {string} description
- * @property {string} [default]
- * @property {boolean} [isRequired]
- */
-
-/**
  * @typedef {object} OptionDef
  * @property {string} key
  * @property {string} alias
@@ -53,6 +45,8 @@ const program = new Command();
  * @property {string} description
  * @property {string} [default]
  * @property {boolean} [isRequired]
+ * @property {boolean} [isPrompted]
+ * @property {(value: any, prevValue?: any) => any} [sanitize]
  */
 
 /**
@@ -83,219 +77,14 @@ const program = new Command();
  */
 
 /**
- * Construct argument definitions.
- * @type {ArgDef[]}
+ * Read the package.json file.
+ * @type {Record<string, any>}
  */
-const argDefs = [
-	{
-		key: 'dir',
-		description: 'The name of the theme directory to create (example: "my-theme")',
-		isRequired: true,
-	},
-];
+const pkg = JSON.parse(fs.readFileSync(path.resolve('./package.json'), { encoding: 'utf8' }).toString());
 
-/**
- * Construct option definitions.
- * @type {OptionDef[]}
- */
-const optionDefs = [
-	{
-		key: 'themeName',
-		alias: 'N',
-		type: 'string',
-		title: 'Theme Name',
-		description: 'The theme name',
-		default: 'WP Theme',
-		isRequired: true,
-	},
-	{
-		key: 'themeVersion',
-		alias: 'X',
-		type: 'string',
-		title: 'Version',
-		description: 'The theme version',
-		default: '0.0.1',
-		isRequired: true,
-	},
-	{
-		key: 'themeTemplate',
-		alias: 'T',
-		type: 'string',
-		title: 'Template',
-		description: 'The parent theme if this is a child theme',
-		default: '',
-		isRequired: false,
-	},
-	{
-		key: 'themeURI',
-		alias: 'U',
-		type: 'string',
-		title: 'Theme URI',
-		description: 'The theme URI',
-		default: 'https://github.com/example/wp-theme',
-		isRequired: true,
-	},
-	{
-		key: 'themeBugsURI',
-		alias: 'B',
-		type: 'string',
-		title: 'Theme Bugs URI',
-		description: 'The theme bugs URI',
-		default: 'https://github.com/example/wp-theme/issues',
-		isRequired: true,
-	},
-	{
-		key: 'themeRepoURI',
-		alias: 'R',
-		type: 'string',
-		title: 'Theme Repository URI',
-		description: 'The theme repository URI',
-		default: 'git@github.com:example/wp-theme.git',
-		isRequired: true,
-	},
-	{
-		key: 'themeRepoType',
-		alias: 'r',
-		type: 'string',
-		title: 'Theme Repository Type',
-		description: 'The theme repository type',
-		default: 'git',
-		isRequired: true,
-	},
-	{
-		key: 'themeDescription',
-		alias: 'd',
-		type: 'string',
-		title: 'Description',
-		description: 'The theme description',
-		default: 'This theme was generated using create-wp-theme.',
-		isRequired: true,
-	},
-	{
-		key: 'themeAuthor',
-		alias: 'A',
-		type: 'string',
-		title: 'Author',
-		description: 'The theme author',
-		default: 'Example, INC.',
-		isRequired: true,
-	},
-	{
-		key: 'themeAuthorEmail',
-		alias: 'E',
-		type: 'string',
-		title: 'Author Email',
-		description: 'The theme author email',
-		default: 'hello@example.com',
-		isRequired: true,
-	},
-	{
-		key: 'themeAuthorURI',
-		alias: 'u',
-		type: 'string',
-		title: 'Author URI',
-		description: 'The theme author URI',
-		default: 'https://www.example.com',
-		isRequired: true,
-	},
-	{
-		key: 'themeLicense',
-		alias: 'L',
-		type: 'string',
-		title: 'License',
-		description: 'The theme license as a valid SPDX expression',
-		default: 'UNLICENSED',
-		isRequired: true,
-	},
-	{
-		key: 'themeTags',
-		alias: 't',
-		type: 'string',
-		title: 'Tags',
-		description: 'A CSV of WordPress theme tags',
-		default: 'accessibility-ready, translation-ready',
-		isRequired: false,
-	},
-	{
-		key: 'wpVersionRequired',
-		alias: 'W',
-		type: 'string',
-		title: 'WP Version Required',
-		description: 'The version of WordPress the theme requires',
-		default: '6.0.0',
-		isRequired: true,
-	},
-	{
-		key: 'wpVersionTested',
-		alias: 'w',
-		type: 'string',
-		title: 'WP Version Tested',
-		description: 'The version of WordPress the theme has been tested up to',
-		default: '6.0.0',
-		isRequired: true,
-	},
-	{
-		key: 'functionPrefix',
-		alias: 'F',
-		type: 'string',
-		title: 'Function Prefix',
-		description: 'The prefix for PHP functions',
-		default: 'wp_theme',
-		isRequired: true,
-	},
-	{
-		key: 'classPrefix',
-		alias: 'C',
-		type: 'string',
-		title: 'Class Prefix',
-		description: 'The prefix for PHP classes',
-		default: 'WP_Theme',
-		isRequired: true,
-	},
-	{
-		key: 'constantPrefix',
-		alias: 'c',
-		type: 'string',
-		title: 'Constant Prefix',
-		description: 'The prefix for PHP constants',
-		default: 'WP_THEME',
-		isRequired: true,
-	},
-	{
-		key: 'path',
-		alias: 'p',
-		type: 'string',
-		title: 'Path',
-		description: 'The path where the built theme directory will be placed',
-		default: process.cwd(),
-		isRequired: true,
-	},
-];
-
-// Set program settings.
-program.name('create-wp-theme');
-program.description(pkg.description);
-program.version(pkg.version);
-
-// Define program arguments.
-argDefs.forEach((argDef) => {
-	const name = argDef.isRequired ? `<${argDef.key}>` : `[${argDef.key}]`;
-	program.argument(name, argDef.description, argDef.default);
-});
-
-// Define program options.
-optionDefs.forEach((optionDef) => {
-	const type = optionDef.isRequired ? `<${optionDef.type}>` : `[${optionDef.type}]`;
-	const flags = `-${optionDef.alias}, --${optionDef.key} ${type}`;
-	program.option(flags, optionDef.description, optionDef.default);
-});
-
-// Parse the CLI options and store them in the program.
-program.parse(process.argv);
-
-// Construct repo settings.
-const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
-const gitBranch = 'master';
+// Replicate magic constants in ES module scope.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Construct paths.
 const tmpPath = path.join(__dirname, 'tmp');
@@ -314,7 +103,304 @@ const tmpThemeVscodeDirPath = path.join(tmpThemePath, '.vscode');
 const tmpThemeGithubDirPath = path.join(tmpThemePath, '.github');
 const tmpThemeLanguagesDirPath = path.join(tmpThemePath, 'languages');
 const tmpThemeReadmePath = path.join(tmpThemePath, 'README.md');
-const themeDirName = changeCase.paramCase(program.args[0]);
+
+// Construct repo settings.
+const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
+const gitBranch = 'master';
+
+/**
+ * Construct option definitions.
+ * @type {OptionDef[]}
+ */
+const optionDefs = [
+	{
+		key: 'themeName',
+		alias: 'N',
+		type: 'string',
+		title: 'Theme Name',
+		description: 'The theme name',
+		default: 'WP Theme',
+		isRequired: true,
+		isPrompted: true,
+	},
+	{
+		key: 'themeVersion',
+		alias: 'X',
+		type: 'string',
+		title: 'Version',
+		description: 'The theme version',
+		default: '0.0.1',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return semver.clean(value) || '';
+		},
+	},
+	{
+		key: 'themeTemplate',
+		alias: 'T',
+		type: 'string',
+		title: 'Template',
+		description: 'The parent theme if this is a child theme',
+		default: '',
+		isRequired: false,
+		isPrompted: true,
+		sanitize: (value) => {
+			return kebabCase(value);
+		},
+	},
+	{
+		key: 'themeURI',
+		alias: 'U',
+		type: 'string',
+		title: 'Theme URI',
+		description: 'The theme URI',
+		default: 'https://github.com/example/wp-theme',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return zod.string().url().safeParse(value).data || '';
+		},
+	},
+	{
+		key: 'themeBugsURI',
+		alias: 'B',
+		type: 'string',
+		title: 'Theme Bugs URI',
+		description: 'The theme bugs URI',
+		default: 'https://github.com/example/wp-theme/issues',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return zod.string().url().safeParse(value).data || '';
+		},
+	},
+	{
+		key: 'themeRepoURI',
+		alias: 'R',
+		type: 'string',
+		title: 'Theme Repository URI',
+		description: 'The theme repository URI',
+		default: 'git@github.com:example/wp-theme.git',
+		isRequired: true,
+		isPrompted: true,
+	},
+	{
+		key: 'themeRepoType',
+		alias: 'r',
+		type: 'string',
+		title: 'Theme Repository Type',
+		description: 'The theme repository type',
+		default: 'git',
+		isRequired: true,
+		isPrompted: true,
+	},
+	{
+		key: 'themeDescription',
+		alias: 'd',
+		type: 'string',
+		title: 'Description',
+		description: 'The theme description',
+		default: 'This theme was generated using create-wp-theme.',
+		isRequired: true,
+		isPrompted: true,
+	},
+	{
+		key: 'themeAuthor',
+		alias: 'A',
+		type: 'string',
+		title: 'Author',
+		description: 'The theme author',
+		default: 'Example, INC.',
+		isRequired: true,
+		isPrompted: true,
+	},
+	{
+		key: 'themeAuthorEmail',
+		alias: 'E',
+		type: 'string',
+		title: 'Author Email',
+		description: 'The theme author email',
+		default: 'hello@example.com',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return zod.string().email().safeParse(value).data || '';
+		},
+	},
+	{
+		key: 'themeAuthorURI',
+		alias: 'u',
+		type: 'string',
+		title: 'Author URI',
+		description: 'The theme author URI',
+		default: 'https://www.example.com',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return zod.string().url().safeParse(value).data || '';
+		},
+	},
+	{
+		key: 'themeLicense',
+		alias: 'L',
+		type: 'string',
+		title: 'License',
+		description: 'The theme license as a valid SPDX expression',
+		default: 'UNLICENSED',
+		isRequired: true,
+		isPrompted: true,
+	},
+	{
+		key: 'themeTags',
+		alias: 't',
+		type: 'string',
+		title: 'Tags',
+		description: 'A CSV of WordPress theme tags',
+		default: 'accessibility-ready,translation-ready',
+		isRequired: false,
+		isPrompted: true,
+		sanitize: (value) => {
+			const array = zod.string().safeParse(value).data?.split(',') || [];
+			const clean = array.map((item) => kebabCase(item.trim()));
+			return clean.toString();
+		},
+	},
+	{
+		key: 'wpVersionRequired',
+		alias: 'W',
+		type: 'string',
+		title: 'WP Version Required',
+		description: 'The version of WordPress the theme requires',
+		default: '6.0.0',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return semver.clean(value) || '';
+		},
+	},
+	{
+		key: 'wpVersionTested',
+		alias: 'w',
+		type: 'string',
+		title: 'WP Version Tested',
+		description: 'The version of WordPress the theme has been tested up to',
+		default: '6.0.0',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return semver.clean(value) || '';
+		},
+	},
+	{
+		key: 'functionPrefix',
+		alias: 'F',
+		type: 'string',
+		title: 'Function Prefix',
+		description: 'The prefix for PHP functions',
+		default: 'wp_theme',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return snakeCase(value);
+		},
+	},
+	{
+		key: 'classPrefix',
+		alias: 'C',
+		type: 'string',
+		title: 'Class Prefix',
+		description: 'The prefix for PHP classes',
+		default: 'WP_Theme',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return pascalSnakeCase(value);
+		},
+	},
+	{
+		key: 'constantPrefix',
+		alias: 'c',
+		type: 'string',
+		title: 'Constant Prefix',
+		description: 'The prefix for PHP constants',
+		default: 'WP_THEME',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value) => {
+			return constantCase(value);
+		},
+	},
+	{
+		key: 'path',
+		alias: 'p',
+		type: 'string',
+		title: 'Path',
+		description: 'The path where the built theme directory will be placed',
+		default: process.cwd(),
+		isRequired: true,
+		isPrompted: false,
+	},
+];
+
+/**
+ * Options are initialized in the `program.action()`.
+ * @type {Options}
+ */
+let options;
+
+/**
+ * The `themeKey` is a kebab-cased key, taken from the directory name, that is
+ * used as the package name, the theme's textdomain, and in text replacements.
+ * @type {string}
+ */
+let themeKey;
+
+/**
+ * The `themePath` is a resolved directory path, pointing to the desired install
+ * directory by joining the `path` option with the `dir` argument.
+ * @type {string}
+ */
+let themePath;
+
+// Construct the program.
+const program = new Command();
+program.name('create-wp-theme');
+program.description(pkg.description);
+program.version(pkg.version);
+
+// Define program arguments.
+program.argument(
+	'<dir>',
+	'The name of the theme directory to create (example: "my-theme")',
+	(value) => {
+		return kebabCase(value) || '';
+	}
+);
+
+// Define program options.
+optionDefs.forEach((optionDef) => {
+	const type = optionDef.isRequired ? `<${optionDef.type}>` : `[${optionDef.type}]`;
+	const flags = `-${optionDef.alias}, --${optionDef.key} ${type}`;
+	if (optionDef.sanitize) {
+		program.option(flags, optionDef.description, optionDef.sanitize, optionDef.default);
+	} else {
+		program.option(flags, optionDef.description, optionDef.default);
+	}
+});
+
+// Define the program action.
+program.action((dir, opts) => {
+	// Initialize args and options.
+	options = { ...opts };
+	themeKey = dir;
+	themePath = path.resolve(options.path, dir);
+	// Prompt the user and create the theme.
+	create();
+});
+
+// Parse the CLI options and store them in the program.
+program.parse(process.argv);
 
 /**
  * @param {LogMessage} message 
@@ -395,49 +481,62 @@ function formatStdoutMessage(type, stdout) {
 	}
 }
 
-/**
- * @returns {Promise<Args>}
- */
-async function processArgs() {
+async function create() {
+	try {
+		await runPrompt();
+		clonePackage();
+		writePackage();
+		replaceRename();
+		await writeLicense();
+		putPackage();
+		initRepo();
+		logSuccess();
+	} catch(error) {
+		logError(error);
+	} finally {
+		process.exit();
+	}
+}
+
+async function runPrompt() {
+	// Introduce the prompt and log the pre-processed data for debugging.
 	logInfo({
 		title: 'The following tool will help you configure your new theme.',
 		description: 'For each setting, set a value and hit "Enter" to continue.',
 		emoji: '⚡',
 		padding: 'bottom',
+		dataLabel: 'Initial options',
+		// data: options,
 	});
-	return await co(function* () {
-		/**
-		 * Clone the initial program options into args.
-		 * @type {Args}
-		 */
-		const args = { ...program.opts() };
-		// Loop over the arg definitions and prompt if not set through the CLI.
+	await co(function* () {
+		// Loop over the option definitions and prompt if not set through the CLI.
 		// Note this cannot be a `forEach()` loop, because `yield` can only be
 		// used inside of a `for` loop.
 		for (const optionDef of optionDefs) {
-			// If the arg matches its default, we can safely assume it was
-			// not passed from the CLI, and we should prompt for it.
-			if (args[optionDef.key] === optionDef.default) {
-				const promptMessage = `${chalk.bold.cyanBright(optionDef.title + ':')} ${chalk.dim('(' + args[optionDef.key] + ')')} `;
+			// If the option matches its default, we can safely assume it was
+			// not passed from the CLI, and we should prompt for it. Also check
+			// if the option definition marks the option as `isPrompted`.
+			if (optionDef.isPrompted && (options[optionDef.key] === optionDef.default)) {
+				const promptMessage = `${chalk.bold.cyanBright(optionDef.title + ':')} ${chalk.dim('(' + options[optionDef.key] + ')')} `;
 				/**
-				 * If there is a prompt value for this option, set it. If not, use the program option.
+				 * If there is a prompt value for this option, set it. If not,
+				 * use the program option. Sanitize again here because the prompt
+				 * values have not been sanitized yet.
 				 * @type {string}
 				 */
 				const promptValue = yield prompt(promptMessage);
-				if (promptValue) args[optionDef.key] = promptValue;
+				if (promptValue) options[optionDef.key] = optionDef.sanitize ? optionDef.sanitize(promptValue) : promptValue;
 			}
 		}
-		// Log the arguments for debugging.
-		logInfo({
-			title: 'Got it!',
-			description: `Creating ${args.themeName}...`,
-			emoji: '👍',
-			padding: 'both',
-			dataLabel: 'Arguments',
-			data: args,
-		});
-		// The prompts have completed, return the processed args.
-		return args;
+	});
+	// Confirm prompt completion and log the post-processed data for debugging.
+	logInfo({
+		title: 'Got it!',
+		description: `Creating "${options.themeName}" in ${path.relative(process.cwd(), themePath)}`,
+		emoji: '👍',
+		padding: 'both',
+		dataLabel: 'Updated options',
+		// data: options,
 	});
 }
 
@@ -453,36 +552,33 @@ function clonePackage() {
 	});
 }
 
-/**
- * @param {Args} args 
- */
-function writePackage(args) {
+function writePackage() {
 	// Read the package.json file and parse the contents as JSON.
-	const contents = fs.readFileSync(tmpThemePkgPath, 'utf8');
+	const contents = fs.readFileSync(tmpThemePkgPath, { encoding: 'utf8' });
 	const data = JSON.parse(contents);
 	// Configure the data.
-	data.name = themeDirName;
-	data.themeName = args.themeName;
-	data.version = args.themeVersion;
-	data.description = args.themeDescription;
-	data.keywords = args.themeTags ? args.themeTags.split(',').map(function (tag) { return tag.trim(); }) : [];
+	data.name = themeKey;
+	data.themeName = options.themeName;
+	data.version = options.themeVersion;
+	data.description = options.themeDescription;
+	data.keywords = options.themeTags?.split(',');
 	data.author = {
-		name: args.themeAuthor,
-		email: args.themeAuthorEmail,
-		url: args.themeAuthorURI,
+		name: options.themeAuthor,
+		email: options.themeAuthorEmail,
+		url: options.themeAuthorURI,
 	};
-	data.license = args.themeLicense;
+	data.license = options.themeLicense;
 	data.wordpress = {
-		versionRequired: args.wpVersionRequired,
-		versionTested: args.wpVersionTested,
+		versionRequired: options.wpVersionRequired,
+		versionTested: options.wpVersionTested,
 	};
 	data.bugs = {
-		url: args.themeBugsURI,
+		url: options.themeBugsURI,
 	};
-	data.homepage = args.themeURI;
+	data.homepage = options.themeURI;
 	data.repository = {
-		type: args.themeRepoType,
-		url: args.themeRepoURI,
+		type: options.themeRepoType,
+		url: options.themeRepoURI,
 	};
 	// Stringify the data and write it back to the package.json file.
 	const newContents = JSON.stringify(data, null, '\t');
@@ -494,10 +590,7 @@ function writePackage(args) {
 	});
 }
 
-/**
- * @param {Args} args 
- */
-function replaceRename(args) {
+function replaceRename() {
 	const ignoreDirs = [
 		tmpThemeVscodeDirPath,
 		tmpThemeGithubDirPath,
@@ -528,7 +621,7 @@ function replaceRename(args) {
 			const fileName = path.basename(file);
 			// If the file is a class file, rename the file.
 			if (/class-wp-theme/g.test(fileName)) {
-				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, 'class-' + changeCase.paramCase(args.classPrefix)));
+				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, `class-${kebabCase(options.classPrefix)}`));
 				fs.renameSync(file, newFile);
 				logInfo({
 					title: 'File renamed',
@@ -538,15 +631,15 @@ function replaceRename(args) {
 				file = newFile;
 			}
 			// Read the content of the file and test it to see if it needs replacements.
-			let content = fs.readFileSync(file, 'utf8');
+			let content = fs.readFileSync(file, { encoding: 'utf8' });
 			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /WP_THEME/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
 				// Run all replacemnets.
 				content = content
-					.replace(/WP Theme/g, args.themeName)
-					.replace(/WP_THEME/g, args.constantPrefix.replace(/[^a-zA-Z\d]/g, '_'))
-					.replace(/WP_Theme/g, args.classPrefix.replace(/[^a-zA-Z\d]/g, '_'))
-					.replace(/wp-theme/g, themeDirName)
-					.replace(/wp_theme/g, changeCase.snakeCase(args.functionPrefix));
+					.replace(/WP Theme/g, options.themeName)
+					.replace(/WP_THEME/g, options.constantPrefix)
+					.replace(/WP_Theme/g, options.classPrefix)
+					.replace(/wp-theme/g, themeKey)
+					.replace(/wp_theme/g, options.functionPrefix);
 				// Write the file contents back in place.
 				fs.writeFileSync(file, content);
 				logInfo({
@@ -581,14 +674,11 @@ async function fetchLicense(slug) {
 	}
 }
 
-/**
- * @param {Args} args 
- */
-async function writeLicense(args) {
-	if (args.themeLicense === 'UNLICENSED') {
+async function writeLicense() {
+	if (options.themeLicense === 'UNLICENSED') {
 		fs.writeFileSync(tmpThemeLicPath, 'UNLICENSED', { encoding: 'utf8' });
 	} else {
-		const license = await fetchLicense(args.themeLicense);
+		const license = await fetchLicense(options.themeLicense);
 		logInfo({
 			title: 'License fetched',
 			description: license.name,
@@ -603,12 +693,7 @@ async function writeLicense(args) {
 	});
 }
 
-/**
- * @param {Args} args 
- */
-function putPackage(args) {
-	// Prepare the final theme path.
-	const themePath = path.resolve(args.path, themeDirName);
+function putPackage() {
 	// Check if the directory exists already and throw an error if not to avoid
 	// accidnetally removing important data on the machine.
 	if (fs.existsSync(themePath)) throw new Error(`There is already a directory at "${themePath}"`);
@@ -622,103 +707,81 @@ function putPackage(args) {
 	});
 }
 
-/**
- * @param {Args} args 
- */
-function initRepo(args) {
-	const cwdCache = process.cwd();
-	const themePath = path.resolve(args.path, themeDirName);
+function initGitRepo() {
+	// Cache the current working directory and change
+	// working directory to the theme path.
+	const cwd = process.cwd();
+	process.chdir(themePath);
+	// Initialize repository.
+	execSync(`git init -b main`, { stdio: 'pipe' });
+	logInfo({
+		title: 'Repo initialized',
+		description: `Repo type: "${options.themeRepoType}"`,
+		emoji: '📁',
+	});
+	// Add remote origin.
+	execSync(`git remote add origin ${options.themeRepoURI}`, { stdio: 'pipe' });
+	logInfo({
+		title: 'Remote repo added',
+		description: options.themeRepoURI,
+		emoji: '🔗',
+	});
+	// Add and commit all files.
+	const stdout = execSync('git add . && git commit -m "Initial commit ― Theme scaffolded with @dreamsicle.io/create-wp-theme."', { stdio: 'pipe' });
+	const stdoutMessage = formatStdoutMessage('git-commit', stdout);
+	logInfo({
+		title: 'Initial files committed',
+		description: stdoutMessage,
+		emoji: '💾',
+	});
+	// Return the process back to the original working directory.
+	process.chdir(cwd);
+}
+
+function initRepo() {
 	try {
 		// Switch on the repo type and initialize a git repo with
 		// remote origin based on repo type.
-		switch (args.themeRepoType) {
+		switch (options.themeRepoType) {
 			case 'git': {
-				process.chdir(themePath);
-				// Initialize repository.
-				execSync(`git init -b main`, { stdio: 'pipe' });
-				logInfo({
-					title: 'Repo initialized',
-					description: `Repo type: "${args.themeRepoType}"`,
-					emoji: '📁',
-				});
-				// Add remote origin.
-				execSync(`git remote add origin ${args.themeRepoURI}`, { stdio: 'pipe' });
-				logInfo({
-					title: 'Remote repo added',
-					description: args.themeRepoURI,
-					emoji: '🔗',
-				});
-				// Add and commit all files.
-				const stdoutCommit = execSync('git add . && git commit -m "Initial commit ― Theme scaffolded with @dreamsicle.io/create-wp-theme."', { stdio: 'pipe' });
-				const stdoutCommitMessage = formatStdoutMessage('git-commit', stdoutCommit);
-				logInfo({
-					title: 'Initial files committed',
-					description: stdoutCommitMessage,
-					emoji: '💾',
-				});
+				initGitRepo();
 				break;
 			}
 			default: {
 				logInfo({
 					title: 'Skipping repo initialization',
-					description: `Unsupported repo type: "${args.themeRepoType}"`,
+					description: `Unsupported repo type: "${options.themeRepoType}"`,
 					emoji: '❕',
 				});
 				break;
 			}
 		}
-	} catch(error) {
+	} catch (error) {
 		// We don't want Git errors to exit the process, so don't throw.
 		// Instead, catch them and log them so the user is aware, while
 		// allowing the process to continue.
 		logError(error);
-	} finally {
-		// Return to the cached CWD.
-		if (cwdCache !== process.cwd()) process.chdir(cwdCache);
 	}
 }
 
-/**
- * @param {Args} args 
- */
-function logSuccess(args) {
+function logSuccess() {
 	// Prepare the final theme path.
-	const themePath = path.resolve(args.path, themeDirName);
-	const themePathRel = path.relative(process.cwd(), themePath);
+	const relDir = path.relative(process.cwd(), themePath);
 	// Log information to the console.
 	logInfo({
-		title: `${args.themeName} created successfully`,
-		description: themePathRel,
-		emoji: '⚡',
+		title: `${options.themeName} created successfully`,
+		description: 'TODO: this message.',
+		emoji: '🚀',
 		padding: 'both',
 	});
 	logInfo({
 		title: 'What\'s next?',
-		description: `Head over to the "${themeDirName}" directory to install dependencies and get started.`,
+		description: `Head over to the "${themePath}" directory to install dependencies and get started.`,
 		emoji: '⚡',
 		padding: 'bottom',
 	});
-	logInfo({ title: '>', description: `cd ${themePathRel}` });
+	logInfo({ title: '>', description: `cd ${relDir.replace(/\\+/g, '/')}` });
 	logInfo({ title: '>', description: 'nvm use' });
 	logInfo({ title: '>', description: 'npm install' });
 	logInfo({ title: '>', description: 'npm start' });
 }
-
-async function run() {
-	try {
-		const args = await processArgs();
-		clonePackage();
-		writePackage(args);
-		replaceRename(args);
-		await writeLicense(args);
-		putPackage(args);
-		initRepo(args);
-		logSuccess(args);
-	} catch(error) {
-		logError(error);
-	} finally {
-		process.exit();
-	}
-}
-
-run();
