@@ -34,16 +34,17 @@ import { Command } from 'commander';
  * @property {string} classPrefix
  * @property {string} constantPrefix
  * @property {string} path
+ * @property {boolean} verbose
  */
 
 /**
  * @typedef {object} OptionDef
  * @property {string} key
  * @property {string} alias
- * @property {string} type
+ * @property {'string' | 'boolean'} type
  * @property {string} title
  * @property {string} description
- * @property {string} [default]
+ * @property {string | boolean} [default]
  * @property {boolean} [isRequired]
  * @property {boolean} [isPrompted]
  * @property {(value: any, prevValue?: any) => any} [sanitize]
@@ -54,9 +55,10 @@ import { Command } from 'commander';
  * @property {string} title
  * @property {string} [emoji]
  * @property {string} [description]
- * @property {any} [dataLabel]
+ * @property {string} [dataLabel]
  * @property {any} [data]
  * @property {'top' | 'bottom' | 'both'} [padding]
+ * @property {boolean} [verbose]
  */
 
 /**
@@ -122,6 +124,9 @@ const optionDefs = [
 		default: 'WP Theme',
 		isRequired: true,
 		isPrompted: true,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
 	},
 	{
 		key: 'themeVersion',
@@ -133,7 +138,9 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return semver.clean(value) || '';
+			const text = zod.string().trim().safeParse(value).data || '';
+			const version = semver.coerce(text);
+			return semver.valid(version) || '';
 		},
 	},
 	{
@@ -146,7 +153,8 @@ const optionDefs = [
 		isRequired: false,
 		isPrompted: true,
 		sanitize: (value) => {
-			return kebabCase(value);
+			const text = zod.string().trim().safeParse(value).data || '';
+			return kebabCase(text);
 		},
 	},
 	{
@@ -159,7 +167,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().url().safeParse(value).data || '';
+			return zod.string().trim().url().safeParse(value).data || '';
 		},
 	},
 	{
@@ -172,7 +180,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().url().safeParse(value).data || '';
+			return zod.string().trim().url().safeParse(value).data || '';
 		},
 	},
 	{
@@ -184,6 +192,9 @@ const optionDefs = [
 		default: 'git@github.com:example/wp-theme.git',
 		isRequired: true,
 		isPrompted: true,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
 	},
 	{
 		key: 'themeRepoType',
@@ -194,6 +205,9 @@ const optionDefs = [
 		default: 'git',
 		isRequired: true,
 		isPrompted: true,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
 	},
 	{
 		key: 'themeDescription',
@@ -204,6 +218,9 @@ const optionDefs = [
 		default: 'This theme was generated using create-wp-theme.',
 		isRequired: true,
 		isPrompted: true,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
 	},
 	{
 		key: 'themeAuthor',
@@ -214,6 +231,9 @@ const optionDefs = [
 		default: 'Example, INC.',
 		isRequired: true,
 		isPrompted: true,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
 	},
 	{
 		key: 'themeAuthorEmail',
@@ -225,7 +245,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().email().safeParse(value).data || '';
+			return zod.string().trim().email().safeParse(value).data || '';
 		},
 	},
 	{
@@ -238,7 +258,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().url().safeParse(value).data || '';
+			return zod.string().trim().url().safeParse(value).data || '';
 		},
 	},
 	{
@@ -250,6 +270,9 @@ const optionDefs = [
 		default: 'UNLICENSED',
 		isRequired: true,
 		isPrompted: true,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
 	},
 	{
 		key: 'themeTags',
@@ -261,7 +284,7 @@ const optionDefs = [
 		isRequired: false,
 		isPrompted: true,
 		sanitize: (value) => {
-			const array = zod.string().safeParse(value).data?.split(',') || [];
+			const array = zod.string().trim().safeParse(value).data?.split(',') || [];
 			const clean = array.map((item) => kebabCase(item.trim()));
 			return clean.toString();
 		},
@@ -276,7 +299,9 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return semver.clean(value) || '';
+			const text = zod.string().trim().safeParse(value).data || '';
+			const version = semver.coerce(text);
+			return semver.valid(version) || '';
 		},
 	},
 	{
@@ -289,7 +314,9 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return semver.clean(value) || '';
+			const text = zod.string().trim().safeParse(value).data || '';
+			const version = semver.coerce(text);
+			return semver.valid(version) || '';
 		},
 	},
 	{
@@ -302,7 +329,8 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return snakeCase(value);
+			const text = zod.string().trim().safeParse(value).data || '';
+			return snakeCase(text);
 		},
 	},
 	{
@@ -315,7 +343,8 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return pascalSnakeCase(value);
+			const text = zod.string().trim().safeParse(value).data || '';
+			return pascalSnakeCase(text);
 		},
 	},
 	{
@@ -328,7 +357,8 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return constantCase(value);
+			const text = zod.string().trim().safeParse(value).data || '';
+			return constantCase(text);
 		},
 	},
 	{
@@ -339,6 +369,19 @@ const optionDefs = [
 		description: 'The path where the built theme directory will be placed',
 		default: process.cwd(),
 		isRequired: true,
+		isPrompted: false,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
+	},
+	{
+		key: 'verbose',
+		alias: 'v',
+		type: 'boolean',
+		title: 'Verbose',
+		description: 'Output extra information to the console',
+		default: false,
+		isRequired: false,
 		isPrompted: false,
 	},
 ];
@@ -374,7 +417,8 @@ program.argument(
 	'<dir>',
 	'The name of the theme directory to create (example: "my-theme")',
 	(value) => {
-		return kebabCase(value) || '';
+		const text = zod.string().trim().toLowerCase().safeParse(value).data || '';
+		return kebabCase(text) || '';
 	}
 );
 
@@ -406,36 +450,42 @@ program.parse(process.argv);
  * @param {LogMessage} message 
  */
 function logInfo(message) {
-	let { title, description, emoji, data, dataLabel, padding } = message;
+	let { title, description, emoji, data, dataLabel, padding, verbose } = message;
+	const hasData = (data && verbose);
 	/** 
 	 * Construct the text.
 	 * @type {string}
 	 */
 	let text = chalk.bold.green(title);
-	if (description) text += ` ${description}`;
+	if (description) text += ` ${chalk.dim('―')} ${description}`;
 	if (emoji) text = `${emoji} ${text}`;
 	// Add padding.
 	if ((padding === 'top') || (padding === 'both')) text = `\n${text}`;
-	if (((padding === 'bottom') || (padding === 'both')) && ! data) text = `${text}\n`;
+	if (((padding === 'bottom') || (padding === 'both')) && ! hasData) text = `${text}\n`;
 	/** 
 	 * Construct the params array.
 	 * @type {any[]}
 	 */
 	let params = [text];
 	// Construct the data.
-	if (data) params.push(...[`\n\n💡 ${chalk.bold.cyan(dataLabel || 'Data')} →`, data, '\n']);
+	if (hasData) params.push(...[`\n\n💡 ${chalk.bold.cyan(dataLabel || 'Data')} →`, data, '\n']);
 	console.info(...params);
 }
 
 /**
  * @param {unknown} error 
+ * @param {boolean} [verbose] 
  */
-function logError(error) {
+function logError(error, verbose) {
 	/**
 	 * @type {Error}
 	 */
 	const errorInstance = (error instanceof Error) ? error : new Error((typeof error === 'string') ? error : 'An unknown error has occurred');
-	console.error(chalk.bold.redBright(`\n\n❌ Error: ${errorInstance.message}\n\n`), errorInstance, '\n\n');
+	if (verbose) {
+		console.error(chalk.bold.redBright(`\n❌ Error: ${errorInstance.message}\n\n`), errorInstance, '\n');
+	} else {
+		console.error(chalk.bold.redBright(`\n❌ Error: ${errorInstance.message}\n`));
+	}
 }
 
 /**
@@ -483,6 +533,7 @@ function formatStdoutMessage(type, stdout) {
 
 async function create() {
 	try {
+		validate();
 		await runPrompt();
 		clonePackage();
 		writePackage();
@@ -492,21 +543,29 @@ async function create() {
 		initRepo();
 		logSuccess();
 	} catch(error) {
-		logError(error);
+		logError(error, options.verbose);
 	} finally {
 		process.exit();
 	}
 }
 
+function validate() {
+	// Validate that the configured theme path does not exist.
+	if (fs.existsSync(themePath)) throw new Error(`There is already a directory at "${themePath}"`);
+}
+
 async function runPrompt() {
+	// Clear the console.
+	console.clear();
 	// Introduce the prompt and log the pre-processed data for debugging.
 	logInfo({
-		title: 'The following tool will help you configure your new theme.',
-		description: 'For each setting, set a value and hit "Enter" to continue.',
+		title: 'Let\'s get started',
+		description: `This tool will guide you through configuring your theme.\nFor each prompt, set a value and hit "ENTER" to continue. To exit early, hit\n"CMD+C" on Mac, or "CTRL+C" on Windows. For help, run "create-wp-theme -h" to\noutput the tool's help information. If you need to log or view issues, visit\n${pkg.bugs.url}.`,
 		emoji: '⚡',
-		padding: 'bottom',
+		padding: 'both',
+		verbose: options.verbose,
 		dataLabel: 'Initial options',
-		// data: options,
+		data: options,
 	});
 	await co(function* () {
 		// Loop over the option definitions and prompt if not set through the CLI.
@@ -535,20 +594,41 @@ async function runPrompt() {
 		description: `Creating "${options.themeName}" in ${path.relative(process.cwd(), themePath)}`,
 		emoji: '👍',
 		padding: 'both',
+		verbose: options.verbose,
 		dataLabel: 'Updated options',
-		// data: options,
+		data: options,
 	});
 }
 
 function clonePackage() {
-	// Clean out the tmp directory.
-	fs.rmSync(tmpPath, { recursive: true, force: true });
-	// Clone the repo into the tmp directory.
-	execSync(`git clone -b ${gitBranch} ${gitURL} ${tmpPath}`, { stdio: 'pipe' });
 	logInfo({
-		title: 'Repo cloned',
+		title: 'Cloning package',
 		description: `${gitURL} (${gitBranch})`,
 		emoji: '📥',
+		verbose: options.verbose,
+		dataLabel: 'Package information',
+		data: {
+			source: gitURL,
+			destination: tmpPath,
+			branch: gitBranch,
+		},
+	});
+	// Clean out the tmp directory.
+	fs.rmSync(tmpPath, { recursive: true, force: true });
+	// Clone the repo into the tmp directory. Because the `stdio` of this execSync
+	// call shows progress, we can't just print the `stdout` buffer with `pipe`. Instead,
+	// inherit `stdio` so that the messages flow through to the console if `verbose`
+	// option is set.
+	execSync(`git clone -b ${gitBranch} ${gitURL} ${tmpPath}`, { stdio: options.verbose ? 'inherit' : 'ignore' });
+	const clonedFiles = walkDirectories(tmpThemePath).map((file) => path.relative(tmpThemePath, file));
+	logInfo({
+		title: 'Package cloned',
+		description: `${clonedFiles.length} files cloned`,
+		emoji: '📥',
+		dataLabel: 'Cloned files',
+		padding: options.verbose ? 'top' : undefined,
+		verbose: options.verbose,
+		data: clonedFiles,
 	});
 }
 
@@ -585,8 +665,11 @@ function writePackage() {
 	fs.writeFileSync(tmpThemePkgPath, newContents, { encoding: 'utf8' });
 	logInfo({
 		title: 'Package written',
-		description: tmpThemePkgPath.replace(tmpThemePath, ''),
+		description: path.relative(tmpThemePath, tmpThemePkgPath),
 		emoji: '🔨',
+		verbose: options.verbose,
+		dataLabel: 'Package data',
+		data: data,
 	});
 }
 
@@ -611,6 +694,16 @@ function replaceRename() {
 	];
 	// Walk all directories and collect file paths.
 	const files = walkDirectories(tmpThemePath);
+	/**
+	 * Initialize an array of renamed files for logging.
+	 * @type {string[]}
+	 */
+	const renamedFiles = [];
+	/**
+	 * Initialize an array of built files for logging.
+	 * @type {string[]}
+	 */
+	const builtFiles = [];
 	// Loop over each file path.
 	files.forEach(file => {
 		// Determine if the file should be ignored.
@@ -623,12 +716,8 @@ function replaceRename() {
 			if (/class-wp-theme/g.test(fileName)) {
 				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, `class-${kebabCase(options.classPrefix)}`));
 				fs.renameSync(file, newFile);
-				logInfo({
-					title: 'File renamed',
-					description: newFile.replace(tmpThemePath, ''),
-					emoji: '🔨',
-				});
 				file = newFile;
+				renamedFiles.push(path.relative(tmpThemePath, file));
 			}
 			// Read the content of the file and test it to see if it needs replacements.
 			let content = fs.readFileSync(file, { encoding: 'utf8' });
@@ -642,13 +731,22 @@ function replaceRename() {
 					.replace(/wp_theme/g, options.functionPrefix);
 				// Write the file contents back in place.
 				fs.writeFileSync(file, content);
-				logInfo({
-					title: 'File built',
-					description: file.replace(tmpThemePath, ''),
-					emoji: '🔨',
-				});
+				builtFiles.push(path.relative(tmpThemePath, file));
 			}
 		}
+	});
+	const renamedMessage = (renamedFiles.length === 1) ? `${renamedFiles.length} file renamed` : `${renamedFiles.length} files renamed`;
+	const builtMessage = (builtFiles.length === 1) ? `${builtFiles.length} file built` : `${builtFiles.length} files built`;
+	logInfo({
+		title: 'Files built',
+		description: `${renamedMessage}, ${builtMessage}`,
+		emoji: '🔨',
+		verbose: options.verbose,
+		dataLabel: 'Modified files',
+		data: {
+			renamed: renamedFiles,
+			built: builtFiles,
+		},
 	});
 }
 
@@ -675,35 +773,54 @@ async function fetchLicense(slug) {
 }
 
 async function writeLicense() {
-	if (options.themeLicense === 'UNLICENSED') {
-		fs.writeFileSync(tmpThemeLicPath, 'UNLICENSED', { encoding: 'utf8' });
-	} else {
-		const license = await fetchLicense(options.themeLicense);
+	try {
+		if (options.themeLicense === 'UNLICENSED') {
+			fs.writeFileSync(tmpThemeLicPath, 'UNLICENSED', { encoding: 'utf8' });
+		} else {
+			const license = await fetchLicense(options.themeLicense);
+			logInfo({
+				title: 'License fetched',
+				description: license.name,
+				emoji: '📥',
+				verbose: options.verbose,
+				dataLabel: 'License information',
+				data: {
+					name: license.name,
+					spdx: license.spdx_id,
+					url: license.html_url,
+					api: license.url,
+				},
+			});
+			fs.writeFileSync(tmpThemeLicPath, license.body, { encoding: 'utf8' });
+		}
 		logInfo({
-			title: 'License fetched',
-			description: license.name,
-			emoji: '📥',
+			title: 'License written',
+			description: path.relative(tmpThemePath, tmpThemeLicPath),
+			emoji: '📄',
 		});
-		fs.writeFileSync(tmpThemeLicPath, license.body, { encoding: 'utf8' });
+	} catch (error) {
+		// We don't want license errors to exit the process, so don't throw.
+		// Instead, catch them and log them so the user is aware, while
+		// allowing the process to continue.
+		logError(error, options.verbose);
 	}
-	logInfo({
-		title: 'License written',
-		description: tmpThemeLicPath.replace(tmpThemePath, ''),
-		emoji: '📄',
-	});
 }
 
 function putPackage() {
-	// Check if the directory exists already and throw an error if not to avoid
-	// accidnetally removing important data on the machine.
+	// Double check if the directory exists already and throw an error if not to
+	// avoid accidnetally removing important data on the machine.
 	if (fs.existsSync(themePath)) throw new Error(`There is already a directory at "${themePath}"`);
 	// Copy the final build from the tmp directory to the real directory and clean the tmp directory.
 	fs.cpSync(tmpThemePath, themePath, { recursive: true, force: true });
 	fs.rmSync(tmpPath, { recursive: true, force: true });
+	// Log success.
 	logInfo({
-		title: 'Theme copied',
-		description: themePath,
-		emoji: '🚀',
+		title: 'Theme relocated',
+		description: path.relative(process.cwd(), themePath),
+		emoji: '📚',
+		verbose: options.verbose,
+		dataLabel: 'Theme files',
+		data: walkDirectories(themePath).map((file) => path.relative(themePath, file)),
 	});
 }
 
@@ -713,26 +830,35 @@ function initGitRepo() {
 	const cwd = process.cwd();
 	process.chdir(themePath);
 	// Initialize repository.
-	execSync(`git init -b main`, { stdio: 'pipe' });
+	const stdoutInit = execSync(`git init -b main`, { stdio: 'pipe' });
 	logInfo({
 		title: 'Repo initialized',
 		description: `Repo type: "${options.themeRepoType}"`,
 		emoji: '📁',
+		verbose: options.verbose,
+		dataLabel: 'Init response',
+		data: stdoutInit.toString().trim(),
 	});
 	// Add remote origin.
-	execSync(`git remote add origin ${options.themeRepoURI}`, { stdio: 'pipe' });
+	const stdoutAddRemote = execSync(`git remote add origin ${options.themeRepoURI}`, { stdio: 'pipe' });
 	logInfo({
 		title: 'Remote repo added',
 		description: options.themeRepoURI,
 		emoji: '🔗',
+		verbose: options.verbose,
+		dataLabel: 'Add remote response',
+		data: stdoutAddRemote.toString().trim(),
 	});
 	// Add and commit all files.
-	const stdout = execSync('git add . && git commit -m "Initial commit ― Theme scaffolded with @dreamsicle.io/create-wp-theme."', { stdio: 'pipe' });
-	const stdoutMessage = formatStdoutMessage('git-commit', stdout);
+	const stdoutCommit = execSync('git add . && git commit -m "Initial commit ― Theme scaffolded with @dreamsicle.io/create-wp-theme."', { stdio: 'pipe' });
+	const stdoutCommitMessage = formatStdoutMessage('git-commit', stdoutCommit);
 	logInfo({
 		title: 'Initial files committed',
-		description: stdoutMessage,
+		description: stdoutCommitMessage,
 		emoji: '💾',
+		verbose: options.verbose,
+		dataLabel: 'Commit response',
+		data: stdoutCommit.toString().trim(),
 	});
 	// Return the process back to the original working directory.
 	process.chdir(cwd);
@@ -760,27 +886,27 @@ function initRepo() {
 		// We don't want Git errors to exit the process, so don't throw.
 		// Instead, catch them and log them so the user is aware, while
 		// allowing the process to continue.
-		logError(error);
+		logError(error, options.verbose);
 	}
 }
 
 function logSuccess() {
 	// Prepare the final theme path.
-	const relDir = path.relative(process.cwd(), themePath);
+	const relPath = path.relative(process.cwd(), themePath);
 	// Log information to the console.
 	logInfo({
-		title: `${options.themeName} created successfully`,
-		description: 'TODO: this message.',
+		title: `Theme created`,
+		description: `Created "${options.themeName}" in ${relPath}`,
 		emoji: '🚀',
 		padding: 'both',
 	});
 	logInfo({
 		title: 'What\'s next?',
-		description: `Head over to the "${themePath}" directory to install dependencies and get started.`,
+		description: `Head over to your new theme directory to install dependencies\nand start cooking something up! If we\'ve initialized a repository for you, we\ncommited the initial files and added a remote origin, but we didn\'t push\nupstream. It\'s also a good idea to check your LICENSE file to fill out any\nplaceholders that may be in the text. ${chalk.bold('Now, go build something beautiful.')}`,
 		emoji: '⚡',
 		padding: 'bottom',
 	});
-	logInfo({ title: '>', description: `cd ${relDir.replace(/\\+/g, '/')}` });
+	logInfo({ title: '>', description: `cd ${relPath.replace(/\\+/g, '/')}` });
 	logInfo({ title: '>', description: 'nvm use' });
 	logInfo({ title: '>', description: 'npm install' });
 	logInfo({ title: '>', description: 'npm start' });
