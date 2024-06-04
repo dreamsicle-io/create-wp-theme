@@ -34,7 +34,7 @@ import { Command } from 'commander';
  * @property {string} classPrefix
  * @property {string} constantPrefix
  * @property {string} path
- * @property {boolean} verbose
+ * @property {boolean} [verbose]
  */
 
 /**
@@ -418,7 +418,7 @@ program.argument(
 	'The name of the theme directory to create (example: "my-theme")',
 	(value) => {
 		const text = zod.string().trim().toLowerCase().safeParse(value).data || '';
-		return kebabCase(text) || '';
+		return kebabCase(text);
 	}
 );
 
