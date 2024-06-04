@@ -1,6 +1,7 @@
 {
 	"env": {
-		"node": true
+		"node": true,
+		"es6": true
 	},
 	"extends": [
 		"eslint:recommended"
@@ -24,19 +25,9 @@
 	],
 	"rules": {
 		"indent": ["error", "tab"],
-		"eol-last": ["error", "always"],
-		"no-unused-vars": [
-			"error", 
-			{
-				"argsIgnorePattern": "^_"
-			}
-		],
-		"no-console": [
-			"error",
-			{
-				"allow": ["info", "warn", "error"]
-			}
-		]
+		"eol-last": ["error", "always", { "SwitchCase": 1 }],
+		"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+		"no-console": ["error", { "allow": ["info", "warn", "error"] }]
 	}
 }
   

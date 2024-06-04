@@ -27,28 +27,26 @@ npx @dreamsicle.io/create-wp-theme my-theme
 Once the command has been run, and the tool finds that the directory is unique, The tool will walk through a set of prompts that can be filled out inorder to customize the output of the package. 
 
 ```shell
-The following tool will help you configure your new theme.
-For each setting, set a value and hit "Enter" to continue.
+⚡ The following tool will help you configure your new theme. For each setting, set a value and hit "Enter" to continue.
 
-Theme Name: (WP Theme) 
-Version: (0.0.1) 
-Template: () 
-Theme URI: (https://github.com/example/wp-theme) 
-Theme Bugs URI: (https://github.com/example/wp-theme/issues) 
-Theme Repository URI: (git@github.com:example/wp-theme.git) 
-Theme Repository Type: (git) 
-Description: (This theme was generated using create-wp-theme.) 
-Author: (Example, INC.) 
-Author Email: (hello@example.com) 
-Author URI: (https://www.example.com) 
-License: (UNLICENSED) 
-Tags: (accessibility-ready, translation-ready) 
-WP Version Required: (5.0.0) 
-WP Version Tested: (5.0.0) 
-Function Prefix: (wp_theme) 
-Class Prefix: (WP_Theme) 
-Constant Prefix: (WP_THEME) 
-Path: () 
+Theme Name: (WP Theme)
+Version: (0.0.1)
+Template: ()
+Theme URI: (https://github.com/example/wp-theme)
+Theme Bugs URI: (https://github.com/example/wp-theme/issues)
+Theme Repository URI: (git@github.com:example/wp-theme.git)
+Theme Repository Type: (git)
+Description: (This theme was generated using create-wp-theme.)
+Author: (Example, INC.)
+Author Email: (hello@example.com)
+Author URI: (https://www.example.com)
+License: (UNLICENSED)
+Tags: (accessibility-ready, translation-ready)
+WP Version Required: (6.0.0)
+WP Version Tested: (6.0.0)
+Function Prefix: (wp_theme)
+Class Prefix: (WP_Theme)
+Constant Prefix: (WP_THEME)
 ```
 
 ## Logging
@@ -56,22 +54,70 @@ Path: ()
 The tool will log its progress and errors in the console, exiting on completion and fatal errors.
 
 ```shell
-Creating theme: WP Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
+👍 Got it! Creating WP Theme...
 
-Repo cloned: https://github.com/dreamsicle-io/wp-theme-assets.git --> C:\Users\noahm\Code\create-wp-theme\tmp
-package.json written: C:\Users\noahm\Code\create-wp-theme\tmp\package\package.json
-File Renamed: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-wp-theme-assets.php
-File built: C:\Users\noahm\Code\create-wp-theme\tmp\package\includes\class-wp-theme-assets.php
-License written: C:\Users\noahm\Code\create-wp-theme\tmp\package\LICENSE
-Theme copied: C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
-Repo cleaned: C:\Users\noahm\Code\create-wp-theme\tmp
+💡 Arguments → {
+  themeName: 'WP Theme',
+  themeVersion: '0.0.1',
+  themeTemplate: '',
+  themeURI: 'https://github.com/example/wp-theme',
+  themeBugsURI: 'https://github.com/example/wp-theme/issues',
+  themeRepoURI: 'git@github.com:example/wp-theme.git',
+  themeRepoType: 'git',
+  themeDescription: 'This theme was generated using create-wp-theme.',
+  themeAuthor: 'Example, INC.',
+  themeAuthorEmail: 'hello@example.com',
+  themeAuthorURI: 'https://www.example.com',
+  themeLicense: 'UNLICENSED',
+  themeTags: 'accessibility-ready, translation-ready',
+  wpVersionRequired: '6.0.0',
+  wpVersionTested: '6.0.0',
+  functionPrefix: 'wp_theme',
+  classPrefix: 'WP_Theme',
+  constantPrefix: 'WP_THEME',
+  path: 'tests'
+}
 
-Theme created: WP Theme in C:\Users\noahm\Code\create-wp-theme-dev\app\public\wp-content\themes\my-theme
+📥 Repo cloned https://github.com/dreamsicle-io/wp-theme-assets.git (master)
+🔨 Package written \package.json
+🔨 File built \404.php
+🔨 File built \comments.php
+🔨 File built \functions.php
+🔨 File renamed \includes\class-wp-theme-assets.php
+🔨 File built \includes\class-wp-theme-assets.php
+🔨 File renamed \includes\class-wp-theme-backstage.php
+🔨 File built \includes\class-wp-theme-backstage.php
+🔨 File renamed \includes\class-wp-theme-seo.php
+🔨 File built \includes\class-wp-theme-seo.php
+🔨 File renamed \includes\class-wp-theme-setup.php
+🔨 File built \includes\class-wp-theme-setup.php
+🔨 File built \includes\template-tags.php
+🔨 File built \partials\card.php
+🔨 File built \partials\colophon.php
+🔨 File built \partials\error.php
+🔨 File built \partials\list.php
+🔨 File built \partials\masthead.php
+🔨 File built \phpcs.xml
+🔨 File built \src\modules\scss\reset.scss
+📄 License written \LICENSE
+🚀 Theme copied C:\Users\noahm\source\repos\create-wp-theme\tests\wp-theme
+📁 Repo initialized Repo type: "git"
+🔗 Remote repo added git@github.com:example/wp-theme.git
+💾 Initial files committed [main (root-commit) 9a6a10f] ― 54 files changed, 3504 insertions(+)
+
+⚡ WP Theme created successfully tests\wp-theme
+
+⚡ What's next? Head over to the "wp-theme" directory to install dependencies and get started.    
+
+> cd tests\wp-theme
+> nvm use
+> npm install
+> npm start
 ```
 
 ## Options
 
-The tool offers several options that will serve as defaults for the tool's prompt. These options can be used to customize the default options of the tool allowing the developer to go through the prompts faster.
+The tool offers several options that will serve as defaults for the tool's prompt. These options can be used to customize the default options of the tool allowing the developer to go through the prompts faster. Options provided via the CLI will not be prompted for in the terminal.
 
 ```shell 
 npx @dreamsicle.io/create-wp-theme -X 1.0.0 -A Dreamsicle -E hello@dreamsicle.com -u https://www.dreamsicle.com my-theme
