@@ -110,6 +110,10 @@ const tmpThemeReadmePath = path.join(tmpThemePath, 'README.md');
 const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
 const gitBranch = 'master';
 
+// Construct license settings.
+const licenseAPIEndpoint = 'https://api.github.com/licenses';
+const licenseAPIDocsURL = 'https://docs.github.com/en/rest/licenses/licenses';
+
 /**
  * Construct option definitions.
  * @type {OptionDef[]}
@@ -604,7 +608,7 @@ function clonePackage() {
 	logInfo({
 		title: 'Cloning package',
 		description: `${gitURL} (${gitBranch})`,
-		emoji: '📥',
+		emoji: '⏳',
 		verbose: options.verbose,
 		dataLabel: 'Package information',
 		data: {
@@ -756,7 +760,7 @@ function replaceRename() {
  */
 async function fetchLicense(slug) {
 	const formattedSlug = encodeURIComponent(slug.toLowerCase());
-	const response = await fetch(`https://api.github.com/licenses/${formattedSlug}`, {
+	const response = await fetch(`${licenseAPIEndpoint}/${formattedSlug}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -775,8 +779,25 @@ async function fetchLicense(slug) {
 async function writeLicense() {
 	try {
 		if (options.themeLicense === 'UNLICENSED') {
+			// If `UNLICENSED` write the file with only `UNLICENSED` as its content.
 			fs.writeFileSync(tmpThemeLicPath, 'UNLICENSED', { encoding: 'utf8' });
 		} else {
+			// Let the user know we are fetching the license asynchronously, in case
+			// the API takes a while to respond.
+			logInfo({
+				title: 'Fetching license',
+				description: `Fetching license for SPDX ID: "${options.themeLicense}"`,
+				emoji: '⏳',
+				verbose: options.verbose,
+				dataLabel: 'Request information',
+				data: {
+					spdx: options.themeLicense,
+					provider: 'GitHub',
+					endpoint: licenseAPIEndpoint,
+					documentation: licenseAPIDocsURL,
+				},
+			});
+			// Fetch the license from GitHub.
 			const license = await fetchLicense(options.themeLicense);
 			logInfo({
 				title: 'License fetched',
@@ -791,8 +812,10 @@ async function writeLicense() {
 					api: license.url,
 				},
 			});
+			// Write the license content.
 			fs.writeFileSync(tmpThemeLicPath, license.body, { encoding: 'utf8' });
 		}
+		// Log license generation success.
 		logInfo({
 			title: 'License written',
 			description: path.relative(tmpThemePath, tmpThemeLicPath),
