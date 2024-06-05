@@ -110,6 +110,11 @@ const tmpThemeReadmePath = path.join(tmpThemePath, 'README.md');
 const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
 const gitBranch = 'master';
 
+// Construct license settings.
+const licenseProvider = 'GitHub';
+const licenseAPIEndpoint = 'https://api.github.com/licenses';
+const licenseAPIDocsURL = 'https://docs.github.com/en/rest/licenses/licenses';
+
 /**
  * Construct option definitions.
  * @type {OptionDef[]}
@@ -555,12 +560,34 @@ function validate() {
 }
 
 async function runPrompt() {
+	// Determine if any of the options should be prompted for by filtering 
+	// the option definitions for those that are marked as `isPrompted`,
+	// and don't already have a value provided by the user.
+	const promptedOptionDefs = optionDefs.filter((optionDef) => {
+		// Determine if the option has already been set by the user.
+		// Possible options value sources: `default`, `env`, `config`, `cli`.
+		const isUserProvided = ['env', 'cli'].includes(program.getOptionValueSource(optionDef.key));
+		return (optionDef.isPrompted && ! isUserProvided);
+	});
+	// If there are no options to prompt for, skip the prompt.
+	if (promptedOptionDefs.length < 1) {
+		logInfo({
+			title: 'Creating theme',
+			description: `Creating "${options.themeName}" in ${path.relative(process.cwd(), themePath)}`,
+			emoji: '⚡',
+			padding: 'bottom',
+			verbose: options.verbose,
+			dataLabel: 'Options',
+			data: options,
+		});
+		return;
+	}
 	// Clear the console.
 	console.clear();
 	// Introduce the prompt and log the pre-processed data for debugging.
 	logInfo({
 		title: 'Let\'s get started',
-		description: `This tool will guide you through configuring your theme.\nFor each prompt, set a value and hit "ENTER" to continue. To exit early, hit\n"CMD+C" on Mac, or "CTRL+C" on Windows. For help, run "create-wp-theme -h" to\noutput the tool's help information. If you need to log or view issues, visit\n${pkg.bugs.url}.`,
+		description: `This tool will guide you through configuring your theme.\nFor each prompt, set a value and hit "ENTER" to continue. To exit early, hit\n"CMD+C" on Mac, or "CTRL+C" on Windows. For help, run the command with the "-h"\nor "--help" flags to output the tool's help information. If you need to log or\nview issues, visit ${pkg.bugs.url}.`,
 		emoji: '⚡',
 		padding: 'both',
 		verbose: options.verbose,
@@ -568,24 +595,20 @@ async function runPrompt() {
 		data: options,
 	});
 	await co(function* () {
-		// Loop over the option definitions and prompt if not set through the CLI.
+		// Loop over the prompted option definitions and prompt the user for values.
 		// Note this cannot be a `forEach()` loop, because `yield` can only be
 		// used inside of a `for` loop.
-		for (const optionDef of optionDefs) {
-			// If the option matches its default, we can safely assume it was
-			// not passed from the CLI, and we should prompt for it. Also check
-			// if the option definition marks the option as `isPrompted`.
-			if (optionDef.isPrompted && (options[optionDef.key] === optionDef.default)) {
-				const promptMessage = `${chalk.bold.cyanBright(optionDef.title + ':')} ${chalk.dim('(' + options[optionDef.key] + ')')} `;
-				/**
-				 * If there is a prompt value for this option, set it. If not,
-				 * use the program option. Sanitize again here because the prompt
-				 * values have not been sanitized yet.
-				 * @type {string}
-				 */
-				const promptValue = yield prompt(promptMessage);
-				if (promptValue) options[optionDef.key] = optionDef.sanitize ? optionDef.sanitize(promptValue) : promptValue;
-			}
+		for (const optionDef of promptedOptionDefs) {
+			// Construct the prompt message.
+			const promptMessage = `${chalk.bold.cyanBright(optionDef.title + ':')} ${chalk.dim('(' + options[optionDef.key] + ')')} `;
+			/**
+			 * If there is a prompt value for this option, set it. If not,
+			 * use the program option. Sanitize again here because the prompt
+			 * values have not been sanitized yet.
+			 * @type {string}
+			 */
+			const promptValue = yield prompt(promptMessage);
+			if (promptValue) options[optionDef.key] = optionDef.sanitize ? optionDef.sanitize(promptValue) : promptValue;
 		}
 	});
 	// Confirm prompt completion and log the post-processed data for debugging.
@@ -604,7 +627,7 @@ function clonePackage() {
 	logInfo({
 		title: 'Cloning package',
 		description: `${gitURL} (${gitBranch})`,
-		emoji: '📥',
+		emoji: '⏳',
 		verbose: options.verbose,
 		dataLabel: 'Package information',
 		data: {
@@ -756,7 +779,7 @@ function replaceRename() {
  */
 async function fetchLicense(slug) {
 	const formattedSlug = encodeURIComponent(slug.toLowerCase());
-	const response = await fetch(`https://api.github.com/licenses/${formattedSlug}`, {
+	const response = await fetch(`${licenseAPIEndpoint}/${formattedSlug}`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -775,8 +798,25 @@ async function fetchLicense(slug) {
 async function writeLicense() {
 	try {
 		if (options.themeLicense === 'UNLICENSED') {
+			// If `UNLICENSED` write the file with only `UNLICENSED` as its content.
 			fs.writeFileSync(tmpThemeLicPath, 'UNLICENSED', { encoding: 'utf8' });
 		} else {
+			// Let the user know we are fetching the license asynchronously, in case
+			// the API takes a while to respond.
+			logInfo({
+				title: 'Fetching license',
+				description: `Fetching license for SPDX ID: "${options.themeLicense}"`,
+				emoji: '⏳',
+				verbose: options.verbose,
+				dataLabel: 'Request information',
+				data: {
+					spdx: options.themeLicense,
+					provider: licenseProvider,
+					endpoint: licenseAPIEndpoint,
+					documentation: licenseAPIDocsURL,
+				},
+			});
+			// Fetch the license from GitHub.
 			const license = await fetchLicense(options.themeLicense);
 			logInfo({
 				title: 'License fetched',
@@ -791,8 +831,10 @@ async function writeLicense() {
 					api: license.url,
 				},
 			});
+			// Write the license content.
 			fs.writeFileSync(tmpThemeLicPath, license.body, { encoding: 'utf8' });
 		}
+		// Log license generation success.
 		logInfo({
 			title: 'License written',
 			description: path.relative(tmpThemePath, tmpThemeLicPath),
@@ -808,7 +850,7 @@ async function writeLicense() {
 
 function putPackage() {
 	// Double check if the directory exists already and throw an error if not to
-	// avoid accidnetally removing important data on the machine.
+	// avoid accidentally removing important data on the machine.
 	if (fs.existsSync(themePath)) throw new Error(`There is already a directory at "${themePath}"`);
 	// Copy the final build from the tmp directory to the real directory and clean the tmp directory.
 	fs.cpSync(tmpThemePath, themePath, { recursive: true, force: true });
@@ -866,8 +908,7 @@ function initGitRepo() {
 
 function initRepo() {
 	try {
-		// Switch on the repo type and initialize a git repo with
-		// remote origin based on repo type.
+		// Switch on the repo type and initialize a repo with remote origin.
 		switch (options.themeRepoType) {
 			case 'git': {
 				initGitRepo();
@@ -883,7 +924,7 @@ function initRepo() {
 			}
 		}
 	} catch (error) {
-		// We don't want Git errors to exit the process, so don't throw.
+		// We don't want repo errors to exit the process, so don't throw.
 		// Instead, catch them and log them so the user is aware, while
 		// allowing the process to continue.
 		logError(error, options.verbose);
@@ -891,7 +932,7 @@ function initRepo() {
 }
 
 function logSuccess() {
-	// Prepare the final theme path.
+	// Prepare the relative theme path.
 	const relPath = path.relative(process.cwd(), themePath);
 	// Log information to the console.
 	logInfo({
@@ -902,7 +943,7 @@ function logSuccess() {
 	});
 	logInfo({
 		title: 'What\'s next?',
-		description: `Head over to your new theme directory to install dependencies\nand start cooking something up! If we\'ve initialized a repository for you, we\ncommited the initial files and added a remote origin, but we didn\'t push\nupstream. It\'s also a good idea to check your LICENSE file to fill out any\nplaceholders that may be in the text. ${chalk.bold('Now, go build something beautiful.')}`,
+		description: `Head over to your new theme directory to install dependencies\nand start cooking something up! If we've initialized a repository for you, we\ncommited the initial files and added a remote origin, but we didn't push\nupstream. It's also a good idea to check your LICENSE file to fill out any\nplaceholders that may be in the text. ${chalk.bold('Now, go build something beautiful.')}`,
 		emoji: '⚡',
 		padding: 'bottom',
 	});

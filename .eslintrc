@@ -24,10 +24,10 @@
 		"README.md"
 	],
 	"rules": {
-		"indent": ["error", "tab"],
-		"eol-last": ["error", "always", { "SwitchCase": 1 }],
+		"indent": ["error", "tab", { "SwitchCase": 1 }],
+		"eol-last": ["error", "always"],
 		"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-		"no-console": ["error", { "allow": ["info", "warn", "error"] }]
+		"no-console": ["error", { "allow": ["info", "warn", "error", "clear"] }]
 	}
 }
   
