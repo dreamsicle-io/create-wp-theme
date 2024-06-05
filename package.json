@@ -1,6 +1,6 @@
 {
 	"name": "@dreamsicle.io/create-wp-theme",
-	"version": "3.1.0",
+	"version": "3.1.1",
 	"type": "module",
 	"description": "A command line tool for creating modern, optimized WordPress themes.",
 	"main": "index.js",
@@ -10,9 +10,9 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git@github.com:dreamsicle-io/create-wp-theme.git"
+		"url": "git+ssh://git@github.com/dreamsicle-io/create-wp-theme.git"
 	},
-	"homepage": "https://github.com/dreamsicle-io/create-wp-theme#readme",
+	"homepage": "https://github.com/dreamsicle-io/create-wp-theme",
 	"bugs": {
 		"url": "https://github.com/dreamsicle-io/create-wp-theme/issues"
 	},
@@ -39,7 +39,7 @@
 	"scripts": {
 		"test": "node index.js -p tests",
 		"lint": "eslint .",
-		"fix": "eslint --fix .",
+		"fix": "npm pkg fix && eslint --fix .",
 		"clean-tests": "rm -rf tests/**",
 		"clean-deps": "rm -rf node_modules/ package-lock.json",
 		"clean": "npm run clean-deps && npm run clean-tests"

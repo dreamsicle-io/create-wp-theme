@@ -194,11 +194,11 @@ const optionDefs = [
 		type: 'string',
 		title: 'Theme Repository URI',
 		description: 'The theme repository URI',
-		default: 'git@github.com:example/wp-theme.git',
+		default: 'git+ssh://git@github.com:example/wp-theme.git',
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return zod.string().trim().url().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -560,6 +560,8 @@ function validate() {
 }
 
 async function runPrompt() {
+	// Prepare the relative theme path.
+	const relPath = path.relative(process.cwd(), themePath);
 	// Determine if any of the options should be prompted for by filtering 
 	// the option definitions for those that are marked as `isPrompted`,
 	// and don't already have a value provided by the user.
@@ -573,7 +575,7 @@ async function runPrompt() {
 	if (promptedOptionDefs.length < 1) {
 		logInfo({
 			title: 'Creating theme',
-			description: `Creating "${options.themeName}" in ${path.relative(process.cwd(), themePath)}`,
+			description: `Creating "${options.themeName}" in ${relPath}`,
 			emoji: '⚡',
 			padding: 'bottom',
 			verbose: options.verbose,
@@ -614,7 +616,7 @@ async function runPrompt() {
 	// Confirm prompt completion and log the post-processed data for debugging.
 	logInfo({
 		title: 'Got it!',
-		description: `Creating "${options.themeName}" in ${path.relative(process.cwd(), themePath)}`,
+		description: `Creating "${options.themeName}" in ${relPath}`,
 		emoji: '👍',
 		padding: 'both',
 		verbose: options.verbose,
