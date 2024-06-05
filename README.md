@@ -53,6 +53,8 @@ Class Prefix: (WP_Theme)
 Constant Prefix: (WP_THEME)
 ```
 
+> **Note:** Any promptable options that have values already provided by the user will not be prompted for. If the tool detects that all possible option values have already been provided by the user, it won't display the prompt, and will instead jump directly into creation.
+
 ## Logging
 
 The tool will log its progress and errors in the console, exiting on completion and fatal errors.
