@@ -32,8 +32,8 @@ jobs:
       - name: Config Git User
         id: config_git_user
         run: |
-          git config user.name "Test User"
-          git config user.email "test@dreamsicle.io"
+          git config --global user.name "Test User"
+          git config --global user.email "test@dreamsicle.io"
 
       # Installs npm and composer dependencies.
       - name: Install
