@@ -902,7 +902,7 @@ function logSuccess() {
 	});
 	logInfo({
 		title: 'What\'s next?',
-		description: `Head over to your new theme directory to install dependencies\nand start cooking something up! If we\'ve initialized a repository for you, we\ncommited the initial files and added a remote origin, but we didn\'t push\nupstream. It\'s also a good idea to check your LICENSE file to fill out any\nplaceholders that may be in the text. ${chalk.bold('Now, go build something beautiful.')}`,
+		description: `Head over to your new theme directory to install dependencies\nand start cooking something up! If we've initialized a repository for you, we\ncommited the initial files and added a remote origin, but we didn't push\nupstream. It's also a good idea to check your LICENSE file to fill out any\nplaceholders that may be in the text. ${chalk.bold('Now, go build something beautiful.')}`,
 		emoji: '⚡',
 		padding: 'bottom',
 	});
