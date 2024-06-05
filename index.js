@@ -560,7 +560,7 @@ async function runPrompt() {
 	// Introduce the prompt and log the pre-processed data for debugging.
 	logInfo({
 		title: 'Let\'s get started',
-		description: `This tool will guide you through configuring your theme.\nFor each prompt, set a value and hit "ENTER" to continue. To exit early, hit\n"CMD+C" on Mac, or "CTRL+C" on Windows. For help, run "create-wp-theme -h" to\noutput the tool's help information. If you need to log or view issues, visit\n${pkg.bugs.url}.`,
+		description: `This tool will guide you through configuring your theme.\nFor each prompt, set a value and hit "ENTER" to continue. To exit early, hit\n"CMD+C" on Mac, or "CTRL+C" on Windows. For help, run the command with the "-h"\nor "--help" flags to output the tool's help information. If you need to log or\nview issues, visit ${pkg.bugs.url}.`,
 		emoji: '⚡',
 		padding: 'both',
 		verbose: options.verbose,
@@ -808,7 +808,7 @@ async function writeLicense() {
 
 function putPackage() {
 	// Double check if the directory exists already and throw an error if not to
-	// avoid accidnetally removing important data on the machine.
+	// avoid accidentally removing important data on the machine.
 	if (fs.existsSync(themePath)) throw new Error(`There is already a directory at "${themePath}"`);
 	// Copy the final build from the tmp directory to the real directory and clean the tmp directory.
 	fs.cpSync(tmpThemePath, themePath, { recursive: true, force: true });
@@ -866,8 +866,7 @@ function initGitRepo() {
 
 function initRepo() {
 	try {
-		// Switch on the repo type and initialize a git repo with
-		// remote origin based on repo type.
+		// Switch on the repo type and initialize a repo with remote origin.
 		switch (options.themeRepoType) {
 			case 'git': {
 				initGitRepo();
@@ -883,7 +882,7 @@ function initRepo() {
 			}
 		}
 	} catch (error) {
-		// We don't want Git errors to exit the process, so don't throw.
+		// We don't want repo errors to exit the process, so don't throw.
 		// Instead, catch them and log them so the user is aware, while
 		// allowing the process to continue.
 		logError(error, options.verbose);
@@ -891,7 +890,7 @@ function initRepo() {
 }
 
 function logSuccess() {
-	// Prepare the final theme path.
+	// Prepare the relative theme path.
 	const relPath = path.relative(process.cwd(), themePath);
 	// Log information to the console.
 	logInfo({
