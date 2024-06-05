@@ -119,9 +119,9 @@ The tool will rename files and generate file contents if it detects placeholders
 
 ### File Renaming
 
-| Placeholder        | Replacement           | Description                           |
-| ------------------ | --------------------- | ------------------------------------- | 
-| `class-wp-theme-*` | `-C`, `--classPrefix` | The parsed class prefix, kebab-cased. |
+| Placeholder        | Replacement           | Description                                  |
+| ------------------ | --------------------- | -------------------------------------------- | 
+| `class-wp-theme-*` | `-C`, `--classPrefix` | The parsed class prefix option, kebab-cased. |
 
 ## Licenses
 
