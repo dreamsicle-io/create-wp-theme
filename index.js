@@ -560,6 +560,28 @@ function validate() {
 }
 
 async function runPrompt() {
+	// Determine if any of the options should be prompted for by filtering 
+	// the option definitions for those that are marked as `isPrompted`,
+	// and don't already have a value provided by the user.
+	const promptedOptionDefs = optionDefs.filter((optionDef) => {
+		// Determine if the option has already been set by the user.
+		// Possible options value sources: `default`, `env`, `config`, `cli`.
+		const isUserProvided = ['env', 'cli'].includes(program.getOptionValueSource(optionDef.key));
+		return (optionDef.isPrompted && ! isUserProvided);
+	});
+	// If there are no options to prompt for, skip the prompt.
+	if (promptedOptionDefs.length < 1) {
+		logInfo({
+			title: 'Creating theme',
+			description: `Creating "${options.themeName}" in ${path.relative(process.cwd(), themePath)}`,
+			emoji: '⚡',
+			padding: 'bottom',
+			verbose: options.verbose,
+			dataLabel: 'Options',
+			data: options,
+		});
+		return;
+	}
 	// Clear the console.
 	console.clear();
 	// Introduce the prompt and log the pre-processed data for debugging.
@@ -573,27 +595,20 @@ async function runPrompt() {
 		data: options,
 	});
 	await co(function* () {
-		// Loop over the option definitions and prompt if not set through the CLI.
+		// Loop over the prompted option definitions and prompt the user for values.
 		// Note this cannot be a `forEach()` loop, because `yield` can only be
 		// used inside of a `for` loop.
-		for (const optionDef of optionDefs) {
-			// Determine if the option has already been set by the user.
-			// Possible options value sources: `default`, `env`, `config`, `cli`.
-			const isUserProvided = ['env', 'cli'].includes(program.getOptionValueSource(optionDef.key));
-			// If the option matches its default, we can safely assume it was
-			// not passed from the CLI, and we should prompt for it. Also check
-			// if the option definition marks the option as `isPrompted`.
-			if (optionDef.isPrompted && ! isUserProvided) {
-				const promptMessage = `${chalk.bold.cyanBright(optionDef.title + ':')} ${chalk.dim('(' + options[optionDef.key] + ')')} `;
-				/**
-				 * If there is a prompt value for this option, set it. If not,
-				 * use the program option. Sanitize again here because the prompt
-				 * values have not been sanitized yet.
-				 * @type {string}
-				 */
-				const promptValue = yield prompt(promptMessage);
-				if (promptValue) options[optionDef.key] = optionDef.sanitize ? optionDef.sanitize(promptValue) : promptValue;
-			}
+		for (const optionDef of promptedOptionDefs) {
+			// Construct the prompt message.
+			const promptMessage = `${chalk.bold.cyanBright(optionDef.title + ':')} ${chalk.dim('(' + options[optionDef.key] + ')')} `;
+			/**
+			 * If there is a prompt value for this option, set it. If not,
+			 * use the program option. Sanitize again here because the prompt
+			 * values have not been sanitized yet.
+			 * @type {string}
+			 */
+			const promptValue = yield prompt(promptMessage);
+			if (promptValue) options[optionDef.key] = optionDef.sanitize ? optionDef.sanitize(promptValue) : promptValue;
 		}
 	});
 	// Confirm prompt completion and log the post-processed data for debugging.
