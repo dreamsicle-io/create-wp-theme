@@ -577,10 +577,13 @@ async function runPrompt() {
 		// Note this cannot be a `forEach()` loop, because `yield` can only be
 		// used inside of a `for` loop.
 		for (const optionDef of optionDefs) {
+			// Determine if the option has already been set by the user.
+			// Possible options value sources: `default`, `env`, `config`, `cli`.
+			const isUserProvided = ['env', 'cli'].includes(program.getOptionValueSource(optionDef.key));
 			// If the option matches its default, we can safely assume it was
 			// not passed from the CLI, and we should prompt for it. Also check
 			// if the option definition marks the option as `isPrompted`.
-			if (optionDef.isPrompted && (options[optionDef.key] === optionDef.default)) {
+			if (optionDef.isPrompted && ! isUserProvided) {
 				const promptMessage = `${chalk.bold.cyanBright(optionDef.title + ':')} ${chalk.dim('(' + options[optionDef.key] + ')')} `;
 				/**
 				 * If there is a prompt value for this option, set it. If not,
