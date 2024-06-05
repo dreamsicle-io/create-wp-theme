@@ -111,6 +111,7 @@ const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
 const gitBranch = 'master';
 
 // Construct license settings.
+const licenseProvider = 'GitHub';
 const licenseAPIEndpoint = 'https://api.github.com/licenses';
 const licenseAPIDocsURL = 'https://docs.github.com/en/rest/licenses/licenses';
 
@@ -792,7 +793,7 @@ async function writeLicense() {
 				dataLabel: 'Request information',
 				data: {
 					spdx: options.themeLicense,
-					provider: 'GitHub',
+					provider: licenseProvider,
 					endpoint: licenseAPIEndpoint,
 					documentation: licenseAPIDocsURL,
 				},
