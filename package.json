@@ -37,9 +37,9 @@
 		"eslint": "~8.46.0"
 	},
 	"scripts": {
+		"test": "node index.js -p tests",
 		"lint": "eslint .",
 		"fix": "eslint --fix .",
-		"test": "node index.js -p tests",
 		"clean-tests": "rm -rf tests/**",
 		"clean-deps": "rm -rf node_modules/ package-lock.json",
 		"clean": "npm run clean-deps && npm run clean-tests"
