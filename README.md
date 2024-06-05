@@ -1,18 +1,18 @@
 # Create WP Theme
 
-Create WP Theme is a node command line tool that will scaffold a new WordPress theme with an opinionated file structure and just the right amount of starter code to get a developer started building a modern WordPress theme. This package contains just the `npx @dreamsicle.io/create-wp-theme` command, all of the actual boilerplate code comes from [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets).
+Create WP Theme is a node command line tool that will scaffold a new WordPress theme with an opinionated file structure and just the right amount of starter code. This package contains just the `npx @dreamsicle.io/create-wp-theme` command, all of the actual boilerplate code comes from [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets).
 
 ## Usage
 
 Open a terminal, `cd` to the `/path/to/wordpress/wp-content/themes` directory of a local WordPress instance, and fire the `create-wp-theme` command.
 
 ```shell 
-npx @dreamsicle.io/create-wp-theme [options] <file>
+npx @dreamsicle.io/create-wp-theme [options] <dir>
 ```
 
 ## Getting Started
 
-All that is necessary to start using the tool is a single argument of `file`, which corresponds to a param-cased string that will serve as the theme directory, the WordPress text-domain, and the package name. This will also serve as regular expression to replace all instances of `wp-theme` in the cloned package files.
+All that is necessary to start using the tool is a single argument of `dir`, which corresponds to a kebab-cased string that will serve as the theme directory, the WordPress text-domain, and the package name.
 
 ### 1. Run the `create-wp-theme` command
 
@@ -103,7 +103,35 @@ themeAuthorEmail: hello@dreamsicle.com
 themeAuthorURI:   https://www.dreamsicle.com
 ```
 
-## Help 
+## File Generation
+
+The tool will rename files and generate file contents if it detects placeholders in the supported [WP Theme Assets](https://github.com/dreamsicle-io/wp-theme-assets) files. Note that casing will be adjusted automatically to ensure proper conventions.
+
+### File Content Replacement
+
+| Placeholder | Replacement              | Description                                 |
+| ----------- | ------------------------ | ------------------------------------------- | 
+| `wp-theme`  | `<dir>`                  | The kebab-cased directory argument.         |
+| `wp_theme`  | `-F`, `--functionPrefix` | The snake-cased function prefix option.     |
+| `WP_Theme`  | `-C`, `--classPrefix`    | The pascal-snake-cased class prefix option. |
+| `WP_THEME`  | `-c`, `--constantPrefix` | The constant-cased constant prefix option.  |
+| `WP Theme`  | `-N`, `--themeName`      | The unmodified theme name option.           |
+
+### File Renaming
+
+| Placeholder        | Replacement           | Description                           |
+| ------------------ | --------------------- | ------------------------------------- | 
+| `class-wp-theme-*` | `-C`, `--classPrefix` | The parsed class prefix, kebab-cased. |
+
+## Licenses
+
+The tool will write a license for you according to the [SPDX](https://spdx.dev/) license expression provided in the `-L` or `--themeLicense` option from the [GitHub License API](https://docs.github.com/en/rest/licenses/licenses). You may use any of the [supported licenses](https://api.github.com/licenses?per_page=1000&page=1) to automatically write a license for you on theme creation. While SPDX technically supports [hundreds of license identifiers](https://spdx.org/licenses/), this tool will _only_ automatically write licenses for those supported by the Github License API.
+
+To skip license generation, use `UNLICENSED` as the license identifier.
+
+> **Note:** Some licenses ship with placeholders for things like company name, date, etc. Make sure to fill these out once your theme is generated.
+
+## Help
 
 To get help with the tool and to learn more about usage and the available options, use the `--help` or `-h` flag. This will output all help information available including how to use the command, arguments, option flags, option descriptions, and option defaults.
 
