@@ -194,7 +194,7 @@ const optionDefs = [
 		type: 'string',
 		title: 'Theme Repository URI',
 		description: 'The theme repository URI',
-		default: 'git+ssh://git@github.com:example/wp-theme.git',
+		default: 'git+ssh://git@github.com/example/wp-theme.git',
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
