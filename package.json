@@ -37,7 +37,7 @@
 		"eslint": "~8.46.0"
 	},
 	"scripts": {
-		"test": "node index.js -p tests",
+		"test": "node index.js -P tests",
 		"help": "node index.js -h",
 		"lint": "eslint .",
 		"fix": "npm pkg fix && eslint --fix .",
