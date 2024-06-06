@@ -29,27 +29,26 @@ Once the command has been run, and the tool finds that the directory is unique, 
 ```
 ⚡ Let's get started ― This tool will guide you through configuring your theme.
 For each prompt, set a value and hit "ENTER" to continue. To exit early, hit
-"CMD+C" on Mac, or "CTRL+C" on Windows. For help, run "create-wp-theme -h" to
-output the tool's help information. If you need to log or view issues, visit
-https://github.com/dreamsicle-io/create-wp-theme/issues.
+"CMD+C" on Mac, or "CTRL+C" on Windows. For help, run the command with the "-h"
+or "--help" flags to output the tool's help information. If you need to log or
+view issues, visit https://github.com/dreamsicle-io/create-wp-theme/issues.
 
 Theme Name: (WP Theme)
-Version: (0.0.1) 
-Template: () 
-Theme URI: (https://github.com/example/wp-theme) 
-Theme Bugs URI: (https://github.com/example/wp-theme/issues) 
-Theme Repository URI: (git@github.com:example/wp-theme.git) 
-Theme Repository Type: (git) 
-Description: (This theme was generated using create-wp-theme.) 
-Author: (Example, INC.) 
-Author Email: (hello@example.com) 
-Author URI: (https://www.example.com) 
-License: (UNLICENSED) 
-Tags: (accessibility-ready,translation-ready) 
-WP Version Required: (6.0.0) 
-WP Version Tested: (6.0.0) 
-Function Prefix: (wp_theme) 
-Class Prefix: (WP_Theme) 
+Template: ()
+Theme URI: (https://github.com/example/wp-theme)
+Theme Bugs URI: (https://github.com/example/wp-theme/issues)
+Theme Repository URI: (git+ssh://git@github.com/example/wp-theme.git)
+Theme Repository Type: (git)
+Description: (This theme was generated using create-wp-theme.)
+Author: (Example, INC.)
+Author Email: (hello@example.com)
+Author URI: (https://www.example.com)
+License: (UNLICENSED)
+Tags: (accessibility-ready,translation-ready)
+WP Version Required: (6.0.0)
+WP Version Tested: (6.0.0)
+Function Prefix: (wp_theme)
+Class Prefix: (WP_Theme)
 Constant Prefix: (WP_THEME)
 ```
 
@@ -62,16 +61,17 @@ The tool will log its progress and errors in the console, exiting on completion 
 ```
 👍 Got it! ― Creating "WP Theme" in tests\wp-theme
 
-📥 Cloning package ― https://github.com/dreamsicle-io/wp-theme-assets.git (master)
-📥 Package cloned ― 54 files cloned
+⏳ Cloning package ― https://github.com/dreamsicle-io/wp-theme-assets.git (master)
+📥 Package cloned ― 56 files cloned
 🔨 Package written ― package.json
 🔨 Files built ― 4 files renamed, 15 files built
+⏳ Fetching license ― Fetching license for SPDX ID: "gpl-3.0"
 📥 License fetched ― GNU General Public License v3.0
 📄 License written ― LICENSE
 📚 Theme relocated ― tests\wp-theme
 📁 Repo initialized ― Repo type: "git"
-🔗 Remote repo added ― git@github.com:example/wp-theme.git
-💾 Initial files committed ― [main (root-commit) 0d70104] ― 54 files changed, 4177 insertions(+)
+🔗 Remote repo added ― git+ssh://git@github.com/example/wp-theme.git
+💾 Initial files committed ― [main (root-commit) 37be1d1] ― 56 files changed, 4276 insertions(+)
 
 🚀 Theme created ― Created "WP Theme" in tests\wp-theme
 
@@ -149,7 +149,7 @@ Usage: create-wp-theme [options] <dir>
 A command line tool for creating modern, optimized WordPress themes.
 
 Arguments:
-  dir                               The name of the theme directory to create (example: "wp-theme")
+  dir                               The name of the theme directory to create (example: "my-theme")
 
 Options:
   -V, --version                     output the version number
@@ -158,9 +158,9 @@ Options:
   -T, --themeTemplate [string]      The parent theme if this is a child theme (default: "")
   -U, --themeURI <string>           The theme URI (default: "https://github.com/example/wp-theme")
   -B, --themeBugsURI <string>       The theme bugs URI (default: "https://github.com/example/wp-theme/issues")
-  -R, --themeRepoURI <string>       The theme repository URI (default: "git@github.com:example/wp-theme.git")
+  -R, --themeRepoURI <string>       The theme repository URI (default: "git+ssh://git@github.com/example/wp-theme.git")
   -r, --themeRepoType <string>      The theme repository type (default: "git")
-  -d, --themeDescription <string>   The theme description (default: "This theme was generated using create-wp-theme.")
+  -D, --themeDescription <string>   The theme description (default: "This theme was generated using create-wp-theme.")
   -A, --themeAuthor <string>        The theme author (default: "Example, INC.")
   -E, --themeAuthorEmail <string>   The theme author email (default: "hello@example.com")
   -u, --themeAuthorURI <string>     The theme author URI (default: "https://www.example.com")
@@ -171,7 +171,8 @@ Options:
   -F, --functionPrefix <string>     The prefix for PHP functions (default: "wp_theme")
   -C, --classPrefix <string>        The prefix for PHP classes (default: "WP_Theme")
   -c, --constantPrefix <string>     The prefix for PHP constants (default: "WP_THEME")
-  -p, --path <string>               The path where the built theme directory will be placed (default: "...\\wp-content\\themes")
+  -P, --path <string>               The path where the built theme directory will be placed (default: "C:\\Users\\noahm\\source\\repos\\create-wp-theme")
+  -f, --failExternals [boolean]     Exit on errors from external calls like license fetching and git initializations (default: false)
   -v, --verbose [boolean]           Output extra information to the console (default: false)
   -h, --help                        display help for command
 ```
