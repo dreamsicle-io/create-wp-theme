@@ -34,6 +34,7 @@ import { Command } from 'commander';
  * @property {string} classPrefix
  * @property {string} constantPrefix
  * @property {string} path
+ * @property {boolean} [failExternals]
  * @property {boolean} [verbose]
  */
 
@@ -194,7 +195,7 @@ const optionDefs = [
 		type: 'string',
 		title: 'Theme Repository URI',
 		description: 'The theme repository URI',
-		default: 'git+ssh://git@github.com:example/wp-theme.git',
+		default: 'git+ssh://git@github.com/example/wp-theme.git',
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
@@ -216,7 +217,7 @@ const optionDefs = [
 	},
 	{
 		key: 'themeDescription',
-		alias: 'd',
+		alias: 'D',
 		type: 'string',
 		title: 'Description',
 		description: 'The theme description',
@@ -368,7 +369,7 @@ const optionDefs = [
 	},
 	{
 		key: 'path',
-		alias: 'p',
+		alias: 'P',
 		type: 'string',
 		title: 'Path',
 		description: 'The path where the built theme directory will be placed',
@@ -378,6 +379,16 @@ const optionDefs = [
 		sanitize: (value => {
 			return zod.string().trim().safeParse(value).data || '';
 		}),
+	},
+	{
+		key: 'failExternals',
+		alias: 'f',
+		type: 'boolean',
+		title: 'Fail Externals',
+		description: 'Exit on errors from external calls like license fetching and git initializations',
+		default: false,
+		isRequired: false,
+		isPrompted: false,
 	},
 	{
 		key: 'verbose',
@@ -843,10 +854,14 @@ async function writeLicense() {
 			emoji: '📄',
 		});
 	} catch (error) {
-		// We don't want license errors to exit the process, so don't throw.
-		// Instead, catch them and log them so the user is aware, while
-		// allowing the process to continue.
-		logError(error, options.verbose);
+		// If `failExternals` option is true, throw an error. If it's false, we don't
+		// want license errors to exit the process, so don't throw. Instead, catch them
+		// and log them so the user is aware, while allowing the process to continue.
+		if (options.failExternals) {
+			throw (error instanceof Error) ? error : new Error('Couldn\'t write license');
+		} else {
+			logError(error, options.verbose);
+		}
 	}
 }
 
@@ -926,10 +941,14 @@ function initRepo() {
 			}
 		}
 	} catch (error) {
-		// We don't want repo errors to exit the process, so don't throw.
-		// Instead, catch them and log them so the user is aware, while
-		// allowing the process to continue.
-		logError(error, options.verbose);
+		// If `failExternals` option is true, throw an error. If it's false, we don't
+		// want repo init errors to exit the process, so don't throw. Instead, catch them
+		// and log them so the user is aware, while allowing the process to continue.
+		if (options.failExternals) {
+			throw (error instanceof Error) ? error : new Error('Couldn\'t initialize repository');
+		} else {
+			logError(error, options.verbose);
+		}
 	}
 }
 

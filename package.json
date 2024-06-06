@@ -1,6 +1,6 @@
 {
 	"name": "@dreamsicle.io/create-wp-theme",
-	"version": "3.1.1",
+	"version": "3.2.0",
 	"type": "module",
 	"description": "A command line tool for creating modern, optimized WordPress themes.",
 	"main": "index.js",
@@ -25,8 +25,8 @@
 		"wordpress"
 	],
 	"dependencies": {
-		"chalk": "~4.1.2",
-		"change-case": "^5.4.4",
+		"chalk": "~5.3.0",
+		"change-case": "~5.4.4",
 		"co": "~4.6.0",
 		"co-prompt": "~1.0.0",
 		"commander": "~8.3.0",
@@ -37,7 +37,8 @@
 		"eslint": "~8.46.0"
 	},
 	"scripts": {
-		"test": "node index.js -p tests",
+		"test": "node index.js -P tests",
+		"help": "node index.js -h",
 		"lint": "eslint .",
 		"fix": "npm pkg fix && eslint --fix .",
 		"clean-tests": "rm -rf tests/**",
