@@ -9,17 +9,24 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    steps:
 
+    # Initialize the env variables. These get set after the repo is checked out
+    # because they depend on files in the repo.
+    env:
+      NODE_VERSION: ''
+      GIT_USER_NAME: ''
+      GIT_USER_EMAIL: ''
+
+    steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it.
       - name: Checkout Repo
         id: checkout_repo
         uses: actions/checkout@v4
 
-      # Gets the Node version from .nvmrc and sets it as an environment variable.
-      - name: Set Node Version
-        id: set_node_version
-        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_ENV
+      # Sets the environment variables from the env.sh script.
+      - name: Set Environment Variables
+        id: set_env_vars
+        run: .github/workflows/scripts/env.sh
 
       # Setup Node.
       - name: Setup Node
@@ -32,8 +39,8 @@ jobs:
       - name: Config Git User
         id: config_git_user
         run: |
-          git config --global user.name "Test User"
-          git config --global user.email "test@dreamsicle.io"
+          git config --global user.name ${{ env.GIT_USER_NAME }}
+          git config --global user.email ${{ env.GIT_USER_EMAIL }}
 
       # Installs npm and composer dependencies.
       - name: Install
