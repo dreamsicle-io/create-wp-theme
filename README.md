@@ -43,7 +43,7 @@ Description: (This theme was generated using create-wp-theme.)
 Author: (Example, INC.)
 Author Email: (hello@example.com)
 Author URI: (https://www.example.com)
-License: (UNLICENSED)****
+License: (UNLICENSED)
 Tags: (accessibility-ready,translation-ready)
 WP Version Required: (6.0.0)
 WP Version Tested: (6.0.0)
