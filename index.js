@@ -33,6 +33,7 @@ import { Command } from 'commander';
  * @property {string} functionPrefix
  * @property {string} classPrefix
  * @property {string} constantPrefix
+ * @property {string} wpEngineEnv
  * @property {string} path
  * @property {boolean} [failExternals]
  * @property {boolean} [verbose]
@@ -368,6 +369,19 @@ const optionDefs = [
 		},
 	},
 	{
+		key: 'wpEngineEnv',
+		alias: 'e',
+		type: 'string',
+		title: 'WP Engine Environment',
+		description: 'The name of the WP Engine environment to deploy to',
+		default: 'wpthemedev',
+		isRequired: true,
+		isPrompted: true,
+		sanitize: (value => {
+			return zod.string().trim().safeParse(value).data || '';
+		}),
+	},
+	{
 		key: 'path',
 		alias: 'P',
 		type: 'string',
@@ -695,6 +709,9 @@ function writePackage() {
 	data.repository = {
 		type: options.themeRepoType,
 		url: options.themeRepoURI,
+	};
+	data.wpEngine = {
+		env: options.wpEngineEnv,
 	};
 	// Stringify the data and write it back to the package.json file.
 	const newContents = JSON.stringify(data, null, '\t');

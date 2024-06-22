@@ -43,7 +43,7 @@ Description: (This theme was generated using create-wp-theme.)
 Author: (Example, INC.)
 Author Email: (hello@example.com)
 Author URI: (https://www.example.com)
-License: (UNLICENSED)
+License: (UNLICENSED)****
 Tags: (accessibility-ready,translation-ready)
 WP Version Required: (6.0.0)
 WP Version Tested: (6.0.0)
@@ -171,7 +171,8 @@ Options:
   -F, --functionPrefix <string>     The prefix for PHP functions (default: "wp_theme")
   -C, --classPrefix <string>        The prefix for PHP classes (default: "WP_Theme")
   -c, --constantPrefix <string>     The prefix for PHP constants (default: "WP_THEME")
-  -P, --path <string>               The path where the built theme directory will be placed (default: "C:\\Users\\noahm\\source\\repos\\create-wp-theme")
+  -e, --wpEngineEnv <string>        The name of the WP Engine environment to deploy to (default: "wpthemedev")
+  -P, --path <string>               The path where the built theme directory will be placed (default: "C:\\path\\to\\theme")
   -f, --failExternals [boolean]     Exit on errors from external calls like license fetching and git initializations (default: false)
   -v, --verbose [boolean]           Output extra information to the console (default: false)
   -h, --help                        display help for command

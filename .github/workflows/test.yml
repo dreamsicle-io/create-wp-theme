@@ -56,4 +56,4 @@ jobs:
       # the path to `tests` and enable the `verbose` option for debugging.
       - name: Create Theme
         id: create_theme
-        run: npm test test-theme -- -v -f -P "tests" -N "Test Theme" -X "1.0.0" -T "parent-theme" -U "https://github.com/dreamsicle-io/test" -B "https://github.com/dreamsicle-io/test/issues" -R "git+ssh://git@github.com/dreamsicle-io/test.git" -r "git" -D "Just another WordPress theme." -A "Dreamsicle" -E "hello@dreamsicle.io" -u "https://www.dreamsicle.io" -L "gpl-3.0" -t "accessibility-ready,translation-ready" -W "6.1.0" -w "6.4.0" -F "test" -C "Test" -c "TEST"
+        run: npm test test-theme -- -v -f -P "tests" -N "Test Theme" -X "1.0.0" -T "parent-theme" -U "https://github.com/dreamsicle-io/test" -B "https://github.com/dreamsicle-io/test/issues" -R "git+ssh://git@github.com/dreamsicle-io/test.git" -r "git" -D "Just another WordPress theme." -A "Dreamsicle" -E "hello@dreamsicle.io" -u "https://www.dreamsicle.io" -L "gpl-3.0" -t "accessibility-ready,translation-ready" -W "6.1.0" -w "6.4.0" -F "test" -C "Test" -c "TEST" -e "testthemedev"
