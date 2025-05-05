@@ -80,15 +80,18 @@ import { Command } from 'commander';
  * @property {boolean} featured
  */
 
+// Replicate magic constants in ES module scope.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Get the path for the tool's package.json file.
+const pkgPath = path.join(__dirname, 'package.json');
+
 /**
  * Read the package.json file.
  * @type {Record<string, any>}
  */
-const pkg = JSON.parse(fs.readFileSync(path.resolve('./package.json'), { encoding: 'utf8' }).toString());
-
-// Replicate magic constants in ES module scope.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const pkg = JSON.parse(fs.readFileSync(pkgPath, { encoding: 'utf8' }).toString());
 
 // Construct paths.
 const tmpPath = path.join(__dirname, 'tmp');
