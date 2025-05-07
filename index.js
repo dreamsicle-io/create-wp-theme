@@ -904,11 +904,7 @@ function putPackage() {
 }
 
 function initGitRepo() {
-	// Cache the current working directory and change
-	// working directory to the theme path.
-	const cwd = process.cwd();
-	process.chdir(themePath);
-	// Initialize repository.
+	// Initialize git repository.
 	const stdoutInit = execSync(`git init -b main`, { stdio: 'pipe' });
 	logInfo({
 		title: 'Repo initialized',
@@ -939,13 +935,20 @@ function initGitRepo() {
 		dataLabel: 'Commit response',
 		data: stdoutCommit.toString().trim(),
 	});
-	// Return the process back to the original working directory.
-	process.chdir(cwd);
 }
 
 function initRepo() {
+	// Cache the current working directory and change
+	// working directory to the theme path. At the end of repo
+	// initialization, or on error, the process will be moved
+	// back to the cached current working directory (cwd).
+	const cwd = process.cwd();
+	process.chdir(themePath);
 	try {
 		// Switch on the repo type and initialize a repo with remote origin.
+		// Note that by this time, we have moved the process from the current
+		// working directory into the theme, and the theme has already been 
+		// moved to its final location.
 		switch (options.themeRepoType) {
 			case 'git': {
 				initGitRepo();
@@ -960,7 +963,12 @@ function initRepo() {
 				break;
 			}
 		}
+		// Return the process back to the cached working directory.
+		process.chdir(cwd);
 	} catch (error) {
+		// Return the process back to the cached working directory. Make sure
+		// this happens before the error is thrown to ensure it returns no matter what.
+		process.chdir(cwd);
 		// If `failExternals` option is true, throw an error. If it's false, we don't
 		// want repo init errors to exit the process, so don't throw. Instead, catch them
 		// and log them so the user is aware, while allowing the process to continue.
