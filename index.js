@@ -199,11 +199,13 @@ const optionDefs = [
 		type: 'string',
 		title: 'Theme Repository URI',
 		description: 'The theme repository URI',
-		default: 'git+ssh://git@github.com/example/wp-theme.git',
+		default: 'git+ssh://git@github.com:example/wp-theme.git',
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().url().safeParse(value).data || '';
+			// Parse this is a string rather than a URL, because the
+			// SSH repo URI format does not pass Zod URL validation.
+			return zod.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
