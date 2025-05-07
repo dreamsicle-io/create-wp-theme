@@ -37,7 +37,7 @@ Theme Name: (WP Theme)
 Template: ()
 Theme URI: (https://github.com/example/wp-theme)
 Theme Bugs URI: (https://github.com/example/wp-theme/issues)
-Theme Repository URI: (git+ssh://git@github.com/example/wp-theme.git)
+Theme Repository URI: (git+ssh://git@github.com:example/wp-theme.git)
 Theme Repository Type: (git)
 Description: (This theme was generated using create-wp-theme.)
 Author: (Example, INC.)
@@ -70,7 +70,7 @@ The tool will log its progress and errors in the console, exiting on completion 
 📄 License written ― LICENSE
 📚 Theme relocated ― tests\wp-theme
 📁 Repo initialized ― Repo type: "git"
-🔗 Remote repo added ― git+ssh://git@github.com/example/wp-theme.git
+🔗 Remote repo added ― git+ssh://git@github.com:example/wp-theme.git
 💾 Initial files committed ― [main (root-commit) 37be1d1] ― 56 files changed, 4276 insertions(+)
 
 🚀 Theme created ― Created "WP Theme" in tests\wp-theme
@@ -158,7 +158,7 @@ Options:
   -T, --themeTemplate [string]      The parent theme if this is a child theme (default: "")
   -U, --themeURI <string>           The theme URI (default: "https://github.com/example/wp-theme")
   -B, --themeBugsURI <string>       The theme bugs URI (default: "https://github.com/example/wp-theme/issues")
-  -R, --themeRepoURI <string>       The theme repository URI (default: "git+ssh://git@github.com/example/wp-theme.git")
+  -R, --themeRepoURI <string>       The theme repository URI (default: "git+ssh://git@github.com:example/wp-theme.git")
   -r, --themeRepoType <string>      The theme repository type (default: "git")
   -D, --themeDescription <string>   The theme description (default: "This theme was generated using create-wp-theme.")
   -A, --themeAuthor <string>        The theme author (default: "Example, INC.")
