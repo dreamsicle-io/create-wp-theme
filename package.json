@@ -1,6 +1,6 @@
 {
 	"name": "@dreamsicle.io/create-wp-theme",
-	"version": "3.3.2",
+	"version": "3.3.3",
 	"type": "module",
 	"description": "A command line tool for creating modern, optimized WordPress themes.",
 	"main": "index.js",
@@ -10,7 +10,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+ssh://git@github.com/dreamsicle-io/create-wp-theme.git"
+		"url": "git+ssh://git@github.com:dreamsicle-io/create-wp-theme.git"
 	},
 	"homepage": "https://github.com/dreamsicle-io/create-wp-theme",
 	"bugs": {
