@@ -37,7 +37,8 @@ Theme Name: (WP Theme)
 Template: ()
 Theme URI: (https://github.com/example/wp-theme)
 Theme Bugs URI: (https://github.com/example/wp-theme/issues)
-Theme Repository URI: (git+ssh://git@github.com:example/wp-theme.git)
+Theme Repository URI: (https://github.com/example/wp-theme.git)
+Theme Repository SSH: ()
 Theme Repository Type: (git)
 Description: (This theme was generated using create-wp-theme.)
 Author: (Example, INC.)
@@ -50,6 +51,7 @@ WP Version Tested: (6.0.0)
 Function Prefix: (wp_theme)
 Class Prefix: (WP_Theme)
 Constant Prefix: (WP_THEME)
+WP Engine Environment: (wpthemedev)
 ```
 
 > **Note:** Any promptable options that have values already provided by the user will not be prompted for. If the tool detects that all possible option values have already been provided by the user, it won't display the prompt, and will instead jump directly into creation.
@@ -70,7 +72,7 @@ The tool will log its progress and errors in the console, exiting on completion 
 📄 License written ― LICENSE
 📚 Theme relocated ― tests\wp-theme
 📁 Repo initialized ― Repo type: "git"
-🔗 Remote repo added ― git+ssh://git@github.com:example/wp-theme.git
+🔗 Remote repo added ― git@github.com:example/wp-theme.git
 💾 Initial files committed ― [main (root-commit) 37be1d1] ― 56 files changed, 4276 insertions(+)
 
 🚀 Theme created ― Created "WP Theme" in tests\wp-theme
@@ -111,13 +113,14 @@ The tool will rename files and generate file contents if it detects placeholders
 
 ### File Content Replacement
 
-| Placeholder | Replacement              | Description                                 |
-| ----------- | ------------------------ | ------------------------------------------- | 
-| `wp-theme`  | `<dir>`                  | The kebab-cased directory argument.         |
-| `wp_theme`  | `-F`, `--functionPrefix` | The snake-cased function prefix option.     |
-| `WP_Theme`  | `-C`, `--classPrefix`    | The pascal-snake-cased class prefix option. |
-| `WP_THEME`  | `-c`, `--constantPrefix` | The constant-cased constant prefix option.  |
-| `WP Theme`  | `-N`, `--themeName`      | The unmodified theme name option.           |
+| Placeholder        | Replacement              | Description                                  |
+| -----------        | ------------------------ | -------------------------------------------- | 
+| `WP Theme`         | `-N`, `--themeName`      | The unmodified theme name option.            |
+| `wp_theme`         | `-F`, `--functionPrefix` | The snake-cased function prefix option.      |
+| `WP_THEME`         | `-c`, `--constantPrefix` | The constant-cased constant prefix option.   |
+| `WP_Theme`         | `-C`, `--classPrefix`    | The pascal-snake-cased class prefix option.  |
+| `class-wp-theme-*` | `-C`, `--classPrefix`    | The parsed class prefix option, kebab-cased. |
+| `wp-theme`         | `<dir>`                  | The kebab-cased directory argument.          |
 
 ### File Renaming
 
@@ -158,7 +161,8 @@ Options:
   -T, --themeTemplate [string]      The parent theme if this is a child theme (default: "")
   -U, --themeURI <string>           The theme URI (default: "https://github.com/example/wp-theme")
   -B, --themeBugsURI <string>       The theme bugs URI (default: "https://github.com/example/wp-theme/issues")
-  -R, --themeRepoURI <string>       The theme repository URI (default: "git+ssh://git@github.com:example/wp-theme.git")
+  -R, --themeRepoURI <string>       The theme repository HTTPS URI (default: "https://github.com/example/wp-theme.git")
+  -S, --themeRepoSSH [string]       The theme repository SSH URI (default: "")
   -r, --themeRepoType <string>      The theme repository type (default: "git")
   -D, --themeDescription <string>   The theme description (default: "This theme was generated using create-wp-theme.")
   -A, --themeAuthor <string>        The theme author (default: "Example, INC.")

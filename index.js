@@ -21,6 +21,7 @@ import { Command } from 'commander';
  * @property {string} themeURI
  * @property {string} themeBugsURI
  * @property {string} themeRepoURI
+ * @property {string} themeRepoSSH
  * @property {string} themeRepoType
  * @property {string} themeDescription
  * @property {string} themeAuthor
@@ -198,13 +199,26 @@ const optionDefs = [
 		alias: 'R',
 		type: 'string',
 		title: 'Theme Repository URI',
-		description: 'The theme repository URI',
-		default: 'git+ssh://git@github.com:example/wp-theme.git',
+		description: 'The theme repository HTTPS URI',
+		default: 'https://github.com/example/wp-theme.git',
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
+			return zod.string().trim().url().safeParse(value).data || '';
+		}),
+	},
+	{
+		key: 'themeRepoSSH',
+		alias: 'S',
+		type: 'string',
+		title: 'Theme Repository SSH',
+		description: 'The theme repository SSH URI',
+		default: '',
+		isRequired: false,
+		isPrompted: true,
+		sanitize: (value => {
 			// Parse this is a string rather than a URL, because the
-			// SSH repo URI format does not pass Zod URL validation.
+			// SSH URI format does not pass Zod URL validation.
 			return zod.string().trim().safeParse(value).data || '';
 		}),
 	},
@@ -923,10 +937,11 @@ function initGitRepo() {
 		data: stdoutInit.toString().trim(),
 	});
 	// Add remote origin.
-	const stdoutAddRemote = execSync(`git remote add origin ${options.themeRepoURI}`, { stdio: 'pipe' });
+	const remoteOrigin = options.themeRepoSSH || options.themeRepoURI;
+	const stdoutAddRemote = execSync(`git remote add origin ${remoteOrigin}`, { stdio: 'pipe' });
 	logInfo({
 		title: 'Remote repo added',
-		description: options.themeRepoURI,
+		description: remoteOrigin,
 		emoji: '🔗',
 		verbose: options.verbose,
 		dataLabel: 'Add remote response',
