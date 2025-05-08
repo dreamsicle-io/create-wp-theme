@@ -958,6 +958,10 @@ function initGitRepo() {
 		dataLabel: 'Commit response',
 		data: stdoutCommit.toString().trim(),
 	});
+	// For the built in GitHub workflows, the included shell script responsible
+	// for setting the environment needs the correct permissions to be able to run.
+	// We can do this silently since we cannot be sure the user is using GitHub.
+	execSync('git update-index --chmod=+x .github/workflows/scripts/env.sh', { stdio: 'ignore' });
 }
 
 function initRepo() {
