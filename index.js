@@ -770,23 +770,29 @@ function replaceRename() {
 		if (! isIgnoredDir && ! isIgnoredFile) {
 			// Get the file name from the path.
 			const fileName = path.basename(file);
+			// Format the class file name replacement. This is used when renaming the
+			// class files, as well as in content when the class files are referenced.
+			const classFileNameReplacement = `class-${kebabCase(options.classPrefix)}`;
 			// If the file is a class file, rename the file.
 			if (/class-wp-theme/g.test(fileName)) {
-				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, `class-${kebabCase(options.classPrefix)}`));
+				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, classFileNameReplacement));
 				fs.renameSync(file, newFile);
 				file = newFile;
 				renamedFiles.push(path.relative(tmpThemePath, file));
 			}
 			// Read the content of the file and test it to see if it needs replacements.
 			let content = fs.readFileSync(file, { encoding: 'utf8' });
-			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /WP_THEME/g.test(content) || /wp-theme/g.test(content) || /wp_theme/g.test(content)) {
+			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /WP_THEME/g.test(content) || /wp_theme/g.test(content) || /class-wp-theme/g.test(content) || /wp-theme/g.test(content)) {
 				// Run all replacemnets.
 				content = content
 					.replace(/WP Theme/g, options.themeName)
 					.replace(/WP_THEME/g, options.constantPrefix)
 					.replace(/WP_Theme/g, options.classPrefix)
-					.replace(/wp-theme/g, themeKey)
-					.replace(/wp_theme/g, options.functionPrefix);
+					.replace(/wp_theme/g, options.functionPrefix)
+					// Make sure the `class-wp-theme` replacement happens before
+					// the `wp-theme` replacement since the latter exists in the former.
+					.replace(/class-wp-theme/g, classFileNameReplacement)
+					.replace(/wp-theme/g, themeKey);
 				// Write the file contents back in place.
 				fs.writeFileSync(file, content);
 				builtFiles.push(path.relative(tmpThemePath, file));
