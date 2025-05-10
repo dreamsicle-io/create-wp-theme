@@ -7,7 +7,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { constantCase, kebabCase, pascalSnakeCase, snakeCase } from 'change-case';
 import semver from 'semver';
-import zod from 'zod';
+import { z } from 'zod';
 import chalk from 'chalk';
 import co from 'co';
 import prompt from 'co-prompt';
@@ -65,20 +65,7 @@ import { Command } from 'commander';
  */
 
 /**
- * @typedef {object} GitHubLicense
- * @property {string} key
- * @property {string} name
- * @property {string} spdx_id
- * @property {string} url
- * @property {string} node_id
- * @property {string} html_url
- * @property {string} description
- * @property {string} implementation
- * @property {string[]} permissions
- * @property {string[]} conditions
- * @property {string[]} limitations
- * @property {string} body
- * @property {boolean} featured
+ * @typedef {z.infer<typeof licenseResponseSchema>} License
  */
 
 // Replicate magic constants in ES module scope.
@@ -117,9 +104,12 @@ const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
 const gitBranch = 'master';
 
 // Construct license settings.
-const licenseProvider = 'GitHub';
-const licenseAPIEndpoint = 'https://api.github.com/licenses';
-const licenseAPIDocsURL = 'https://docs.github.com/en/rest/licenses/licenses';
+const licenseAPIEndpoint = 'https://spdx.org/licenses';
+const licenseResponseSchema = z.object({
+	licenseId: z.string().trim().min(1),
+	name: z.string().trim().min(1),
+	licenseText: z.string().trim().min(1),
+});
 
 /**
  * Construct option definitions.
@@ -136,7 +126,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -149,7 +139,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			const text = zod.string().trim().safeParse(value).data || '';
+			const text = z.string().trim().safeParse(value).data || '';
 			const version = semver.coerce(text);
 			return semver.valid(version) || '';
 		},
@@ -164,7 +154,7 @@ const optionDefs = [
 		isRequired: false,
 		isPrompted: true,
 		sanitize: (value) => {
-			const text = zod.string().trim().safeParse(value).data || '';
+			const text = z.string().trim().safeParse(value).data || '';
 			return kebabCase(text);
 		},
 	},
@@ -178,7 +168,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().trim().url().safeParse(value).data || '';
+			return z.string().trim().url().safeParse(value).data || '';
 		},
 	},
 	{
@@ -191,7 +181,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().trim().url().safeParse(value).data || '';
+			return z.string().trim().url().safeParse(value).data || '';
 		},
 	},
 	{
@@ -204,7 +194,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().url().safeParse(value).data || '';
+			return z.string().trim().url().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -219,7 +209,7 @@ const optionDefs = [
 		sanitize: (value => {
 			// Parse this is a string rather than a URL, because the
 			// SSH URI format does not pass Zod URL validation.
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -232,7 +222,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -245,7 +235,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -258,7 +248,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -271,7 +261,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().trim().email().safeParse(value).data || '';
+			return z.string().trim().email().safeParse(value).data || '';
 		},
 	},
 	{
@@ -284,7 +274,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			return zod.string().trim().url().safeParse(value).data || '';
+			return z.string().trim().url().safeParse(value).data || '';
 		},
 	},
 	{
@@ -297,7 +287,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -310,7 +300,7 @@ const optionDefs = [
 		isRequired: false,
 		isPrompted: true,
 		sanitize: (value) => {
-			const array = zod.string().trim().safeParse(value).data?.split(',') || [];
+			const array = z.string().trim().safeParse(value).data?.split(',') || [];
 			const clean = array.map((item) => kebabCase(item.trim()));
 			return clean.toString();
 		},
@@ -325,7 +315,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			const text = zod.string().trim().safeParse(value).data || '';
+			const text = z.string().trim().safeParse(value).data || '';
 			const version = semver.coerce(text);
 			return semver.valid(version) || '';
 		},
@@ -340,7 +330,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			const text = zod.string().trim().safeParse(value).data || '';
+			const text = z.string().trim().safeParse(value).data || '';
 			const version = semver.coerce(text);
 			return semver.valid(version) || '';
 		},
@@ -355,7 +345,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			const text = zod.string().trim().safeParse(value).data || '';
+			const text = z.string().trim().safeParse(value).data || '';
 			return snakeCase(text);
 		},
 	},
@@ -369,7 +359,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			const text = zod.string().trim().safeParse(value).data || '';
+			const text = z.string().trim().safeParse(value).data || '';
 			return pascalSnakeCase(text);
 		},
 	},
@@ -383,7 +373,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value) => {
-			const text = zod.string().trim().safeParse(value).data || '';
+			const text = z.string().trim().safeParse(value).data || '';
 			return constantCase(text);
 		},
 	},
@@ -397,7 +387,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: true,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -410,7 +400,7 @@ const optionDefs = [
 		isRequired: true,
 		isPrompted: false,
 		sanitize: (value => {
-			return zod.string().trim().safeParse(value).data || '';
+			return z.string().trim().safeParse(value).data || '';
 		}),
 	},
 	{
@@ -466,7 +456,7 @@ program.argument(
 	'<dir>',
 	'The name of the theme directory to create (example: "my-theme")',
 	(value) => {
-		const text = zod.string().trim().toLowerCase().safeParse(value).data || '';
+		const text = z.string().trim().toLowerCase().safeParse(value).data || '';
 		return kebabCase(text);
 	}
 );
@@ -829,12 +819,11 @@ function replaceRename() {
 }
 
 /**
- * @param {string} slug 
- * @returns {Promise<GitHubLicense>}
+ * @param {string} id 
+ * @returns {Promise<License>}
  */
-async function fetchLicense(slug) {
-	const formattedSlug = encodeURIComponent(slug.toLowerCase());
-	const response = await fetch(`${licenseAPIEndpoint}/${formattedSlug}`, {
+async function fetchLicense(id) {
+	const response = await fetch(`${licenseAPIEndpoint}/${encodeURIComponent(id)}.json`, {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
@@ -842,10 +831,16 @@ async function fetchLicense(slug) {
 	});
 	switch (response.status) {
 		case 200: {
-			return response.json();
+			const data = await response.json();
+			return licenseResponseSchema.parse(data);
 		}
 		default: {
-			throw new Error(`Couldn't fetch license from GitHub for "${formattedSlug}"`);
+			throw new Error(`Couldn't fetch license for "${id}"`, {
+				cause: {
+					status: response.status,
+					statusText: response.statusText,
+				}
+			});
 		}
 	}
 }
@@ -866,12 +861,10 @@ async function writeLicense() {
 				dataLabel: 'Request information',
 				data: {
 					spdx: options.themeLicense,
-					provider: licenseProvider,
 					endpoint: licenseAPIEndpoint,
-					documentation: licenseAPIDocsURL,
 				},
 			});
-			// Fetch the license from GitHub.
+			// Fetch the license data.
 			const license = await fetchLicense(options.themeLicense);
 			logInfo({
 				title: 'License fetched',
@@ -880,14 +873,12 @@ async function writeLicense() {
 				verbose: options.verbose,
 				dataLabel: 'License information',
 				data: {
+					id: license.licenseId,
 					name: license.name,
-					spdx: license.spdx_id,
-					url: license.html_url,
-					api: license.url,
 				},
 			});
 			// Write the license content.
-			fs.writeFileSync(tmpThemeLicPath, license.body, { encoding: 'utf8' });
+			fs.writeFileSync(tmpThemeLicPath, license.licenseText, { encoding: 'utf8' });
 		}
 		// Log license generation success.
 		logInfo({
@@ -900,7 +891,7 @@ async function writeLicense() {
 		// want license errors to exit the process, so don't throw. Instead, catch them
 		// and log them so the user is aware, while allowing the process to continue.
 		if (options.failExternals) {
-			throw (error instanceof Error) ? error : new Error('Couldn\'t write license');
+			throw new Error('Couldn\'t write license', { cause: error });
 		} else {
 			logError(error, options.verbose);
 		}
@@ -1001,7 +992,7 @@ function initRepo() {
 		// want repo init errors to exit the process, so don't throw. Instead, catch them
 		// and log them so the user is aware, while allowing the process to continue.
 		if (options.failExternals) {
-			throw (error instanceof Error) ? error : new Error('Couldn\'t initialize repository');
+			throw new Error('Couldn\'t initialize repository', { cause: error });
 		} else {
 			logError(error, options.verbose);
 		}

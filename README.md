@@ -130,11 +130,13 @@ The tool will rename files and generate file contents if it detects placeholders
 
 ## Licenses
 
-The tool will write a license for you according to the [SPDX](https://spdx.dev/) license expression provided in the `-L` or `--themeLicense` option from the [GitHub License API](https://docs.github.com/en/rest/licenses/licenses). You may use any of the [supported licenses](https://api.github.com/licenses?per_page=1000&page=1) to automatically write a license for you on theme creation. While SPDX technically supports [hundreds of license identifiers](https://spdx.org/licenses/), this tool will _only_ automatically write licenses for those supported by the Github License API.
+The tool will write a license for you, according to the [SPDX](https://spdx.org/) license identifier provided in the `-L` or `--themeLicense` option, from the [SPDX License API](https://spdx.org/licenses/). You may use any of the supported license identifiers to automatically write a license for you on theme creation.
 
 To skip license generation, use `UNLICENSED` as the license identifier.
 
-> **Note:** Some licenses ship with placeholders for things like company name, date, etc. Make sure to fill these out once your theme is generated.
+> **Note:** The SPDX license identifier is case sensitive.
+
+> **Note:** Some licenses ship with placeholders for things like company name, date, etc. Make sure to inspect the `LICENSE` file and fill these out once your theme is generated.
 
 ## Help
 
