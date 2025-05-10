@@ -136,7 +136,7 @@ To skip license generation, use `UNLICENSED` as the license identifier.
 
 > **Note:** The SPDX license identifier is case sensitive.
 
-> **Note:** Some licenses ship with placeholders for things like company name, date, etc. Make sure inspect the license and fill these out once your theme is generated.
+> **Note:** Some licenses ship with placeholders for things like company name, date, etc. Make sure to inspect the `LICENSE` file and fill these out once your theme is generated.
 
 ## Help
 
