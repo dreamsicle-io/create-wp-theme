@@ -110,7 +110,6 @@ const licenseResponseSchema = z.object({
 	licenseId: z.string().trim().min(1),
 	name: z.string().trim().min(1),
 	licenseText: z.string().trim().min(1),
-	sherp: z.number(),
 });
 
 /**
