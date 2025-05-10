@@ -456,7 +456,7 @@ program.argument(
 	'<dir>',
 	'The name of the theme directory to create (example: "my-theme")',
 	(value) => {
-		const text = z.string().trim().toLowerCase().safeParse(value).data || '';
+		const text = z.string().trim().safeParse(value).data || '';
 		return kebabCase(text);
 	}
 );
@@ -786,7 +786,7 @@ function replaceRename() {
 			}
 			// Read the content of the file and test it to see if it needs replacements.
 			let content = fs.readFileSync(file, { encoding: 'utf8' });
-			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /WP_THEME/g.test(content) || /wp_theme/g.test(content) || /class-wp-theme/g.test(content) || /wp-theme/g.test(content)) {
+			if (/WP Theme/g.test(content) || /WP_Theme/g.test(content) || /WP_THEME/g.test(content) || /wp_theme/g.test(content) || /class-wp-theme/g.test(content) || /wp-theme/g.test(content) || /@since 0\.0\.1/g.test(content)) {
 				// Run all replacemnets.
 				content = content
 					.replace(/WP Theme/g, options.themeName)
@@ -796,7 +796,9 @@ function replaceRename() {
 					// Make sure the `class-wp-theme` replacement happens before
 					// the `wp-theme` replacement since the latter exists in the former.
 					.replace(/class-wp-theme/g, classFileNameReplacement)
-					.replace(/wp-theme/g, themeKey);
+					.replace(/wp-theme/g, themeKey)
+					// Replace all `@since 0.0.1` comments in doc blocks.
+					.replace(/@since 0\.0\.1/g, `@since ${options.themeVersion}`);
 				// Write the file contents back in place.
 				fs.writeFileSync(file, content);
 				builtFiles.push(path.relative(tmpThemePath, file));

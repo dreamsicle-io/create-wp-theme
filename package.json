@@ -1,6 +1,6 @@
 {
 	"name": "@dreamsicle.io/create-wp-theme",
-	"version": "3.6.0",
+	"version": "3.6.1",
 	"type": "module",
 	"description": "A command line tool for creating modern, optimized WordPress themes.",
 	"main": "index.js",
