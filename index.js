@@ -105,7 +105,6 @@ const gitBranch = 'master';
 
 // Construct license settings.
 const licenseAPIEndpoint = 'https://spdx.org/licenses';
-
 const licenseResponseSchema = z.object({
 	licenseId: z.string().trim().min(1),
 	name: z.string().trim().min(1),
