@@ -794,15 +794,15 @@ function replaceRename() {
 	// Walk all directories and collect file paths.
 	const files = walkDirectories(tmpThemePath);
 	/**
-	 * Initialize an array of renamed files for logging.
-	 * @type {string[]}
+	 * Initialize a set of renamed files for logging.
+	 * @type {Set<string>}
 	 */
-	const renamedFiles = [];
+	const renamedFiles = new Set();
 	/**
-	 * Initialize an array of built files for logging.
-	 * @type {string[]}
+	 * Initialize a set of built files for logging.
+	 * @type {Set<string>}
 	 */
-	const builtFiles = [];
+	const builtFiles = new Set();
 	// Loop over each file path.
 	files.forEach(file => {
 		// Determine if the file should be ignored.
@@ -819,7 +819,7 @@ function replaceRename() {
 				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, classFileNameReplacement));
 				fs.renameSync(file, newFile);
 				file = newFile;
-				renamedFiles.push(path.relative(tmpThemePath, file));
+				renamedFiles.add(path.relative(tmpThemePath, file));
 			}
 			// Read the content of the file and test it to see if it needs replacements.
 			let content = fs.readFileSync(file, { encoding: 'utf8' });
@@ -838,7 +838,7 @@ function replaceRename() {
 					.replace(/@since 0\.0\.1/g, `@since ${options.themeVersion}`);
 				// Write the file contents back in place.
 				fs.writeFileSync(file, content);
-				builtFiles.push(path.relative(tmpThemePath, file));
+				builtFiles.add(path.relative(tmpThemePath, file));
 			}
 		}
 	});
@@ -846,7 +846,7 @@ function replaceRename() {
 	let readmeContent = fs.readFileSync(tmpThemeReadmePath, { encoding: 'utf8' });
 	readmeContent = readmeContent.replace(/# WP Theme/g, `# ${options.themeName}`);
 	fs.writeFileSync(tmpThemeReadmePath, readmeContent);
-	builtFiles.push(path.relative(tmpThemePath, tmpThemeReadmePath));
+	builtFiles.add(path.relative(tmpThemePath, tmpThemeReadmePath));
 	// Build PHPCS version information.
 	let phpcsContent = fs.readFileSync(tmpThemePHPCSPath, { encoding: 'utf8' });
 	phpcsContent = phpcsContent.replace(
@@ -854,10 +854,10 @@ function replaceRename() {
 		`name="minimum_supported_wp_version" value="${options.wpVersionRequired}"`
 	);
 	fs.writeFileSync(tmpThemePHPCSPath, phpcsContent);
-	builtFiles.push(path.relative(tmpThemePath, tmpThemePHPCSPath));
+	builtFiles.add(path.relative(tmpThemePath, tmpThemePHPCSPath));
 	// Format build information.
-	const renamedMessage = (renamedFiles.length === 1) ? `${renamedFiles.length} file renamed` : `${renamedFiles.length} files renamed`;
-	const builtMessage = (builtFiles.length === 1) ? `${builtFiles.length} file built` : `${builtFiles.length} files built`;
+	const renamedMessage = (renamedFiles.size === 1) ? `${renamedFiles.size} file renamed` : `${renamedFiles.size} files renamed`;
+	const builtMessage = (builtFiles.size === 1) ? `${builtFiles.size} file built` : `${builtFiles.size} files built`;
 	logInfo({
 		title: 'Files built',
 		description: `${renamedMessage}, ${builtMessage}`,
@@ -865,8 +865,8 @@ function replaceRename() {
 		verbose: options.verbose,
 		dataLabel: 'Modified files',
 		data: {
-			renamed: renamedFiles,
-			built: builtFiles,
+			renamed: Array.from(renamedFiles),
+			built: Array.from(builtFiles),
 		},
 	});
 }
