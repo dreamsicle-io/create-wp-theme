@@ -66,7 +66,7 @@ The tool will log its progress and errors in the console, exiting on completion 
 ⏳ Cloning package ― https://github.com/dreamsicle-io/wp-theme-assets.git (master)
 📥 Package cloned ― 56 files cloned
 🔨 Package written ― package.json
-🔨 Files built ― 4 files renamed, 22 files built
+🔨 Files built ― 4 files renamed, 21 files built
 ⏳ Fetching license ― Fetching license for SPDX ID: "gpl-3.0"
 📥 License fetched ― GNU General Public License v3.0
 📄 License written ― LICENSE
