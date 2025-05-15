@@ -5,7 +5,7 @@ import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { constantCase, kebabCase, pascalSnakeCase, snakeCase } from 'change-case';
+import { capitalCase, constantCase, kebabCase, pascalSnakeCase, snakeCase, split } from 'change-case';
 import semver from 'semver';
 import { z } from 'zod';
 import chalk from 'chalk';
@@ -98,6 +98,7 @@ const tmpThemeVscodeDirPath = path.join(tmpThemePath, '.vscode');
 const tmpThemeGithubDirPath = path.join(tmpThemePath, '.github');
 const tmpThemeLanguagesDirPath = path.join(tmpThemePath, 'languages');
 const tmpThemeReadmePath = path.join(tmpThemePath, 'README.md');
+const tmpThemePHPCSPath = path.join(tmpThemePath, 'phpcs.xml');
 
 // Construct repo settings.
 const gitURL = 'https://github.com/dreamsicle-io/wp-theme-assets.git';
@@ -478,6 +479,35 @@ program.action((dir, opts) => {
 	options = { ...opts };
 	themeKey = dir;
 	themePath = path.resolve(options.path, dir);
+	// Once we have the initial options and args set, we can use the opportunity
+	// to upgrade defaults for the prompt if the user did not provide them.
+	if (!isOptionUserProvided('themeName')) {
+		options.themeName = options.themeName.replace(/WP Theme/g, capitalCase(themeKey));
+	}
+	if (!isOptionUserProvided('themeURI')) {
+		options.themeURI = options.themeURI.replace(/wp-theme/g, themeKey);
+	}
+	if (!isOptionUserProvided('themeBugsURI')) {
+		options.themeBugsURI = options.themeBugsURI.replace(/wp-theme/g, themeKey);
+	}
+	if (!isOptionUserProvided('themeRepoURI')) {
+		options.themeRepoURI = options.themeRepoURI.replace(/wp-theme/g, themeKey);
+	}
+	if (!isOptionUserProvided('themeRepoSSH')) {
+		options.themeRepoSSH = options.themeRepoSSH.replace(/wp-theme/g, themeKey);
+	}
+	if (!isOptionUserProvided('functionPrefix')) {
+		options.functionPrefix = options.functionPrefix.replace(/wp_theme/g, snakeCase(themeKey));
+	}
+	if (!isOptionUserProvided('classPrefix')) {
+		options.classPrefix = options.classPrefix.replace(/WP_Theme/g, pascalSnakeCase(themeKey));
+	}
+	if (!isOptionUserProvided('constantPrefix')) {
+		options.constantPrefix = options.constantPrefix.replace(/WP_THEME/g, constantCase(themeKey));
+	}
+	if (!isOptionUserProvided('wpEngineEnv')) {
+		options.wpEngineEnv = options.wpEngineEnv.replace(/wptheme/g, split(themeKey).map((x) => x.toLowerCase()).join(''));
+	}
 	// Prompt the user and create the theme.
 	create();
 });
@@ -525,6 +555,16 @@ function logError(error, verbose) {
 	} else {
 		console.error(chalk.bold.redBright(`\n❌ Error: ${errorInstance.message}\n`));
 	}
+}
+
+/**
+ * @param {string} key 
+ * @returns {boolean}
+ */
+function isOptionUserProvided(key) {
+	// Determine if the option has already been set by the user.
+	// Possible options value sources: `default`, `env`, `config`, `cli`.
+	return ['env', 'cli'].includes(program.getOptionValueSource(key));
 }
 
 /**
@@ -600,10 +640,7 @@ async function runPrompt() {
 	// the option definitions for those that are marked as `isPrompted`,
 	// and don't already have a value provided by the user.
 	const promptedOptionDefs = optionDefs.filter((optionDef) => {
-		// Determine if the option has already been set by the user.
-		// Possible options value sources: `default`, `env`, `config`, `cli`.
-		const isUserProvided = ['env', 'cli'].includes(program.getOptionValueSource(optionDef.key));
-		return (optionDef.isPrompted && ! isUserProvided);
+		return (optionDef.isPrompted && ! isOptionUserProvided(optionDef.key));
 	});
 	// If there are no options to prompt for, skip the prompt.
 	if (promptedOptionDefs.length < 1) {
@@ -717,7 +754,7 @@ function writePackage() {
 	data.homepage = options.themeURI;
 	data.repository = {
 		type: options.themeRepoType,
-		url: options.themeRepoURI,
+		url: [options.themeRepoType, options.themeRepoURI].join('+'),
 	};
 	data.wpEngine = {
 		env: options.wpEngineEnv,
@@ -757,15 +794,15 @@ function replaceRename() {
 	// Walk all directories and collect file paths.
 	const files = walkDirectories(tmpThemePath);
 	/**
-	 * Initialize an array of renamed files for logging.
-	 * @type {string[]}
+	 * Initialize a set of renamed files for logging.
+	 * @type {Set<string>}
 	 */
-	const renamedFiles = [];
+	const renamedFiles = new Set();
 	/**
-	 * Initialize an array of built files for logging.
-	 * @type {string[]}
+	 * Initialize a set of built files for logging.
+	 * @type {Set<string>}
 	 */
-	const builtFiles = [];
+	const builtFiles = new Set();
 	// Loop over each file path.
 	files.forEach(file => {
 		// Determine if the file should be ignored.
@@ -782,7 +819,7 @@ function replaceRename() {
 				const newFile = file.replace(fileName, fileName.replace(/class-wp-theme/g, classFileNameReplacement));
 				fs.renameSync(file, newFile);
 				file = newFile;
-				renamedFiles.push(path.relative(tmpThemePath, file));
+				renamedFiles.add(path.relative(tmpThemePath, file));
 			}
 			// Read the content of the file and test it to see if it needs replacements.
 			let content = fs.readFileSync(file, { encoding: 'utf8' });
@@ -801,12 +838,26 @@ function replaceRename() {
 					.replace(/@since 0\.0\.1/g, `@since ${options.themeVersion}`);
 				// Write the file contents back in place.
 				fs.writeFileSync(file, content);
-				builtFiles.push(path.relative(tmpThemePath, file));
+				builtFiles.add(path.relative(tmpThemePath, file));
 			}
 		}
 	});
-	const renamedMessage = (renamedFiles.length === 1) ? `${renamedFiles.length} file renamed` : `${renamedFiles.length} files renamed`;
-	const builtMessage = (builtFiles.length === 1) ? `${builtFiles.length} file built` : `${builtFiles.length} files built`;
+	// In the `README.md` file, replace only the title and nothing else.
+	let readmeContent = fs.readFileSync(tmpThemeReadmePath, { encoding: 'utf8' });
+	readmeContent = readmeContent.replace(/# WP Theme/g, `# ${options.themeName}`);
+	fs.writeFileSync(tmpThemeReadmePath, readmeContent);
+	builtFiles.add(path.relative(tmpThemePath, tmpThemeReadmePath));
+	// Build PHPCS version information.
+	let phpcsContent = fs.readFileSync(tmpThemePHPCSPath, { encoding: 'utf8' });
+	phpcsContent = phpcsContent.replace(
+		/name="minimum_supported_wp_version" value="[^"]*"/g,
+		`name="minimum_supported_wp_version" value="${options.wpVersionRequired}"`
+	);
+	fs.writeFileSync(tmpThemePHPCSPath, phpcsContent);
+	builtFiles.add(path.relative(tmpThemePath, tmpThemePHPCSPath));
+	// Format build information.
+	const renamedMessage = (renamedFiles.size === 1) ? `${renamedFiles.size} file renamed` : `${renamedFiles.size} files renamed`;
+	const builtMessage = (builtFiles.size === 1) ? `${builtFiles.size} file built` : `${builtFiles.size} files built`;
 	logInfo({
 		title: 'Files built',
 		description: `${renamedMessage}, ${builtMessage}`,
@@ -814,8 +865,8 @@ function replaceRename() {
 		verbose: options.verbose,
 		dataLabel: 'Modified files',
 		data: {
-			renamed: renamedFiles,
-			built: builtFiles,
+			renamed: Array.from(renamedFiles),
+			built: Array.from(builtFiles),
 		},
 	});
 }

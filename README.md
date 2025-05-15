@@ -33,11 +33,11 @@ For each prompt, set a value and hit "ENTER" to continue. To exit early, hit
 or "--help" flags to output the tool's help information. If you need to log or
 view issues, visit https://github.com/dreamsicle-io/create-wp-theme/issues.
 
-Theme Name: (WP Theme)
+Theme Name: (My Theme)
 Template: ()
-Theme URI: (https://github.com/example/wp-theme)
-Theme Bugs URI: (https://github.com/example/wp-theme/issues)
-Theme Repository URI: (https://github.com/example/wp-theme.git)
+Theme URI: (https://github.com/example/my-theme)
+Theme Bugs URI: (https://github.com/example/my-theme/issues)
+Theme Repository URI: (https://github.com/example/my-theme.git)
 Theme Repository SSH: ()
 Theme Repository Type: (git)
 Description: (This theme was generated using create-wp-theme.)
@@ -48,10 +48,10 @@ License: (UNLICENSED)
 Tags: (accessibility-ready,translation-ready)
 WP Version Required: (6.0.0)
 WP Version Tested: (6.0.0)
-Function Prefix: (wp_theme)
-Class Prefix: (WP_Theme)
-Constant Prefix: (WP_THEME)
-WP Engine Environment: (wpthemedev)
+Function Prefix: (my_theme)
+Class Prefix: (My_Theme)
+Constant Prefix: (MY_THEME)
+WP Engine Environment: (mythemedev)
 ```
 
 > **Note:** Any promptable options that have values already provided by the user will not be prompted for. If the tool detects that all possible option values have already been provided by the user, it won't display the prompt, and will instead jump directly into creation.
@@ -66,7 +66,7 @@ The tool will log its progress and errors in the console, exiting on completion 
 ⏳ Cloning package ― https://github.com/dreamsicle-io/wp-theme-assets.git (master)
 📥 Package cloned ― 56 files cloned
 🔨 Package written ― package.json
-🔨 Files built ― 4 files renamed, 15 files built
+🔨 Files built ― 4 files renamed, 21 files built
 ⏳ Fetching license ― Fetching license for SPDX ID: "gpl-3.0"
 📥 License fetched ― GNU General Public License v3.0
 📄 License written ― LICENSE
