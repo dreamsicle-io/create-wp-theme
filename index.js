@@ -754,7 +754,7 @@ function writePackage() {
 	data.homepage = options.themeURI;
 	data.repository = {
 		type: options.themeRepoType,
-		url: options.themeRepoURI,
+		url: [options.themeRepoType, options.themeRepoURI].join('+'),
 	};
 	data.wpEngine = {
 		env: options.wpEngineEnv,
